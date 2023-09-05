@@ -1,5 +1,4 @@
-import NavBar from './components/nav-bar';
-import './globals.css';
+import '../globals.css';
 
 export const metadata = {
   title: 'Nextjs App',
@@ -12,11 +11,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html>
-      <body>
-        <NavBar />
-          {children}
-      </body>
-    </html>
+    <>
+      {children}
+    </>
   );
 }
