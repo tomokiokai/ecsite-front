@@ -2,6 +2,7 @@ import Link from 'next/link';
 import axios from 'axios';
 import { Blog } from '../../types';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 async function fetchBlogs(): Promise<Blog[]> {
   try {
@@ -30,6 +31,14 @@ async function fetchBlogs(): Promise<Blog[]> {
 }
 
 export default async function BlogListStatic() {
+  const cookieStore = cookies();
+  const jwtToken = cookieStore.get('token');  // 'token'という名前のCookieを取得
+
+  // JWTトークンが存在しない場合、/auth にリダイレクト
+  if (!jwtToken) {
+    redirect('/auth'); // ここでリダイレクトを実行
+    return null; // リダイレクト後、何もレンダリングしない
+  }
   const blogs = await fetchBlogs();
   return (
     <div className="p-4 ">
