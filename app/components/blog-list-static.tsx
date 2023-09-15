@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import axios from 'axios';
 import { Blog } from '../../types';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -13,16 +12,24 @@ async function fetchBlogs(): Promise<Blog[]> {
     if (!csrfToken) {
       throw new Error("CSRF token is missing");
     }
+
     const headers = {
       ...jwtToken ? { Authorization: `${jwtToken.value}` } : {},
       'X-CSRF-Token': csrfToken.value  // Cookieから取得したCSRFトークンをヘッダーに設定
     };
 
-    const response = await axios.get<Blog[]>(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/blogs`, {
-      withCredentials: true,
-      headers: headers
+    const response = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/blogs`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: headers,
+      cache: 'force-cache'
     });
-    const blogs = response.data;
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch data in server');
+    }
+
+    const blogs: Blog[] = await response.json();
     return blogs;
   } catch (error) {
     console.error("Error fetching blogs:", error);
