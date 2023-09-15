@@ -18,6 +18,8 @@ type State = {
   editedBlog: EditedBlog; // 新しいプロパティ
   updateEditedBlog: (payload: EditedBlog) => void; // 新しいメソッド
   resetEditedBlog: () => void; // 新しいメソッド
+  csrfToken: string | null;
+  setCsrfToken: (token: string) => void;
 }
 
 const useStore = create<State>((set) => ({
@@ -33,6 +35,8 @@ const useStore = create<State>((set) => ({
       editedBlog: payload,
     }),
   resetEditedBlog: () => set({ editedBlog: { id: 0, title: '', content: '' } }), // 新しいメソッド
+  csrfToken: null,
+  setCsrfToken: (token) => set({ csrfToken: token }),
 }))
 
 export default useStore

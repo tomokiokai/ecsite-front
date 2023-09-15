@@ -1,12 +1,13 @@
 "use client"
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import useStore from '../store';
 import { Credential } from '../types';
 import { useError } from '../hooks/useError';
 
 export const useMutateAuth = () => {
   const router = useRouter();
+  const currentPath = usePathname();
   const resetEditedTask = useStore((state) => state.resetEditedTask);
   const { switchErrorHandling } = useError();
 
@@ -36,18 +37,19 @@ export const useMutateAuth = () => {
   };
 
   const logout = async () => {
-    try {
-      await axios.post(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/logout`);
-      resetEditedTask();
-      router.push('/');
-    } catch (err: any) {
-      if (err.response?.data?.message) {
-        switchErrorHandling(err.response.data.message);
-      } else {
-        switchErrorHandling(err.response.data);
-      }
+  try {
+    await axios.post(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/logout`);
+    resetEditedTask();
+    router.replace(currentPath); // 現在のページにリダイレクト
+    router.push('/'); // 最終的にルートページにリダイレクト
+  } catch (err: any) {
+    if (err.response?.data?.message) {
+      switchErrorHandling(err.response.data.message);
+    } else {
+      switchErrorHandling(err.response.data);
     }
-  };
+  }
+};
 
   return { login, register, logout };
 };

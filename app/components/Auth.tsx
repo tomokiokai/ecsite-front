@@ -1,11 +1,14 @@
-"use client" 
+"use client"
 import { useState, useEffect, FormEvent } from 'react'
 import axios from 'axios';
 import { CheckBadgeIcon, ArrowPathIcon } from '@heroicons/react/24/solid'
 import { useMutateAuth } from '../../hooks/useMutateAuth'
 import { CsrfToken } from '../../types';
+import { redirect } from 'next/navigation';
+import useStore from '../../store';
 
-export const Auth = () => {
+export const Auth = ({ token }: { token: string }) => {
+  const setCsrfToken = useStore((state) => state.setCsrfToken);
   const [email, setEmail] = useState('')
   const [pw, setPw] = useState('')
   const [isLogin, setIsLogin] = useState(true)
@@ -22,15 +25,21 @@ export const Auth = () => {
   }
 
   useEffect(() => {
+    console.log(token)
+    if (token) {
+      redirect('/'); // ← 追加
+    }
+
     axios.defaults.withCredentials = true
     const getCsrfToken = async () => {
       const { data } = await axios.get<CsrfToken>(
         `${process.env.NEXT_PUBLIC_RESTAPI_URL}/csrf`
       )
       axios.defaults.headers.common['X-CSRF-Token'] = data.csrf_token
+      setCsrfToken(data.csrf_token); // ここでZustandのストアにCSRFトークンを保存
     }
     getCsrfToken()
-  }, [])
+  }, [token])
 
   return (
     <div className="flex justify-center items-center flex-col min-h-screen text-gray-600 font-mono">

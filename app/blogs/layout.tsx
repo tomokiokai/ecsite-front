@@ -1,3 +1,4 @@
+import '../globals.css';
 import BlogListStatic from '../components/blog-list-static'
 import RefreshBtn from '../components/refresh-btn'
 

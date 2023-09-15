@@ -10,30 +10,50 @@ import { useMutateAuth } from '../../hooks/useMutateAuth';
 import { useMutateTask } from '../../hooks/useMutateTask';
 import { TaskItem } from './TaskItem';
 import { Task } from '../../types';
+import axios from 'axios';
 
 export const Todo = () => {
+  const setCsrfToken = useStore((state) => state.setCsrfToken); // ZustandからsetCsrfTokenを取得
+  const csrfToken = useStore((state) => state.csrfToken);
   const { editedTask } = useStore();
   const updateTask = useStore((state) => state.updateEditedTask);
   const getTasks = useQueryTasks();
   const [data, setData] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [taskChanged, setTaskChanged] = useState(false); // タスクの変更を検知するための状態
+  const [taskChanged, setTaskChanged] = useState(false);
   const { createTask, updateTask: updateExistingTask } = useMutateTask();
   const { logout } = useMutateAuth();
 
   useEffect(() => {
+    console.log("CSRF Token:", csrfToken);
+
+    // CSRFトークンが存在しない場合、新しいトークンを取得
+    if (!csrfToken) {
+      axios.defaults.withCredentials = true;
+      const getCsrfToken = async () => {
+        const { data } = await axios.get(
+          `${process.env.NEXT_PUBLIC_RESTAPI_URL}/csrf`
+        );
+        axios.defaults.headers.common['X-CSRF-Token'] = data.csrf_token;
+        setCsrfToken(data.csrf_token); // ZustandのストアにCSRFトークンを保存
+      };
+      getCsrfToken();
+    } else {
+      axios.defaults.headers.common['X-CSRF-Token'] = csrfToken;
+    }
+
     (async () => {
       setIsLoading(true);
       try {
         const tasks = await getTasks();
         setData(tasks);
       } catch (error) {
-        // エラーハンドリングをここで行うか、または useQueryTasks フック内で行います
+        // エラーハンドリング
       } finally {
         setIsLoading(false);
       }
     })();
-  }, [taskChanged]); // 依存配列に taskChanged を追加
+  }, [taskChanged, csrfToken]);
 
   const submitTaskHandler = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -42,8 +62,9 @@ export const Todo = () => {
     } else {
       await updateExistingTask(editedTask);
     }
-    setTaskChanged(!taskChanged); // タスクの変更を検知
+    setTaskChanged(!taskChanged);
   };
+
 
   return (
     <div className="flex justify-center items-center flex-col min-h-screen text-gray-600 font-mono">
