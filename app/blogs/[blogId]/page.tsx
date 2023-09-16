@@ -2,19 +2,46 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
 import { ArrowUturnLeftIcon } from '@heroicons/react/24/solid';
-import axios from 'axios';
 import { Blog } from '../../../types';
+import { cookies } from 'next/headers';
 
 type PageProps = {
   blog: Blog;
+  params: {
+    blogId: string;
+  };
 };
 
 async function fetchBlog(blogId: string): Promise<Blog> {
-  const response = await axios.get<Blog[]>(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/blogs?id=${blogId}`);
-  return response.data[0];
+  const cookieStore = cookies();
+  const jwtToken = cookieStore.get('token');
+  const csrfToken = cookieStore.get('_csrf');
+
+  if (!csrfToken) {
+    throw new Error("CSRF token is missing");
+  }
+
+  const headers = {
+    ...jwtToken ? { Authorization: `${jwtToken.value}` } : {},
+    'X-CSRF-Token': csrfToken.value,
+    'Content-Type': 'application/json',
+  };
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/blogs/${blogId}`, {
+    headers: headers,
+    cache: 'force-cache',
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch data');
+  }
+
+  const blog = await res.json();
+  return blog;
 }
 
-const BlogDetailPage = ({ blog }: PageProps) => {
+export default async function BlogDetailPage({ params }: PageProps) {
+  const blog = await fetchBlog(params.blogId);
   if (!blog) return notFound();
   return (
     <div className="mt-16 p-8">
@@ -38,28 +65,21 @@ const BlogDetailPage = ({ blog }: PageProps) => {
   );
 };
 
-export async function getStaticProps({ params }: { params: { blogId: string } }) {
-  const blog = await fetchBlog(params.blogId);
-  return {
-    props: {
-      blog,
-    },
-    revalidate: 1, 
-  };
-}
-
 export async function generateStaticParams() {
-  const response = await axios.get<Blog[]>(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/blogs`);
-  const blogs = response.data;
+  const res = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/build/blogs`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'X-BUILD-API-KEY': process.env.BUILD_API_KEY || 'default_value'
+    },
+  });
+  const blogs: Blog[] = await res.json();
 
-  return {
-    paths: blogs.map((blog) => ({
-      params: {
-        blogId: blog.id.toString(),
-      },
-    })),
-    fallback: 'blocking',
-  };
+  return blogs.map((blog) => ({
+    blogId: blog.id.toString() ,
+  }));
+
+  
+
+  
 }
 
-export default BlogDetailPage;
