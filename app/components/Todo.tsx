@@ -12,9 +12,9 @@ import { TaskItem } from './TaskItem';
 import { Task } from '../../types';
 import axios from 'axios';
 
-export const Todo = () => {
+export const Todo = ({ csrfToken }: { csrfToken: string }) => {
   const setCsrfToken = useStore((state) => state.setCsrfToken); // ZustandからsetCsrfTokenを取得
-  const csrfToken = useStore((state) => state.csrfToken);
+  
   const { editedTask } = useStore();
   const updateTask = useStore((state) => state.updateEditedTask);
   const getTasks = useQueryTasks();

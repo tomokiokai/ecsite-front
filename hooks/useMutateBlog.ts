@@ -7,7 +7,7 @@ export const useMutateBlog = () => {
   const resetEditedBlog = useStore((state) => state.resetEditedBlog); // ストアから resetEditedBlog を取得
   const { switchErrorHandling } = useError();
 
-  const createBlog = async (blog: Omit<Blog, 'id' | 'created_at' | 'updated_at'>) => {
+  const createBlog = async (blog: Omit<Blog, 'user_id' | 'id' | 'created_at' | 'updated_at'>) => {
     try {
       const response = await axios.post<Blog>(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/blogs`, blog);
       resetEditedBlog();
