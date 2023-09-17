@@ -1,6 +1,6 @@
 import '../globals.css';
 import BlogListStatic from '../components/blog-list-static'
-import RefreshBtn from '../components/refresh-btn'
+import CreateBtn from '../components/create-btn'
 
 export default function BlogLayout({
   children,
@@ -13,7 +13,7 @@ export default function BlogLayout({
         {/*@ts-ignore*/}
         <BlogListStatic />
         <div className="flex justify-center">
-          <RefreshBtn />
+          <CreateBtn />
         </div>
       </aside>
       <main className="flex flex-1 justify-center">{children}</main>
