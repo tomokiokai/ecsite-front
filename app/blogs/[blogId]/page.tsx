@@ -4,6 +4,8 @@ import { format } from 'date-fns';
 import { ArrowUturnLeftIcon } from '@heroicons/react/24/solid';
 import { Blog } from '../../../types';
 import { cookies } from 'next/headers';
+import DeleteButton from '../../components/DeleteButton';
+import EditButton from '../../components/EditButton';
 
 type PageProps = {
   blog: Blog;
@@ -11,8 +13,13 @@ type PageProps = {
     blogId: string;
   };
 };
+type FetchBlogResult = {
+  blog: Blog;
+  token: string | undefined;
+  csrfToken: string;
+};
 
-async function fetchBlog(blogId: string): Promise<Blog> {
+async function fetchBlog(blogId: string): Promise<FetchBlogResult> {
   const cookieStore = cookies();
   const jwtToken = cookieStore.get('token');
   const csrfToken = cookieStore.get('_csrf');
@@ -29,7 +36,7 @@ async function fetchBlog(blogId: string): Promise<Blog> {
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/blogs/${blogId}`, {
     headers: headers,
-    cache: 'force-cache',
+    next: { revalidate: 0 }
   });
 
   if (!res.ok) {
@@ -37,11 +44,11 @@ async function fetchBlog(blogId: string): Promise<Blog> {
   }
 
   const blog = await res.json();
-  return blog;
+  return { blog, token: jwtToken?.value, csrfToken: csrfToken.value };
 }
 
 export default async function BlogDetailPage({ params }: PageProps) {
-  const blog = await fetchBlog(params.blogId);
+  const { blog, token, csrfToken } = await fetchBlog(params.blogId);
   if (!blog) return notFound();
   return (
     <div className="mt-16 p-8">
@@ -58,6 +65,14 @@ export default async function BlogDetailPage({ params }: PageProps) {
         <strong className="mr-3">Created at:</strong>
         {blog && format(new Date(blog.created_at), 'yyyy-MM-dd HH:mm:ss')}
       </p>
+      <p>
+        <strong className="mr-3">Updated at:</strong>
+        {blog && format(new Date(blog.updated_at), 'yyyy-MM-dd HH:mm:ss')}
+      </p>
+
+      <EditButton blogId={blog.id} token={token} csrfToken={csrfToken} />
+
+      <DeleteButton blogId={blog.id} token={token} csrfToken={csrfToken} />
       <Link href={`/blogs`}>
         <ArrowUturnLeftIcon className="mt-3 h-6 w-6 cursor-pointer text-blue-500" />
       </Link>
@@ -77,9 +92,5 @@ export async function generateStaticParams() {
   return blogs.map((blog) => ({
     blogId: blog.id.toString() ,
   }));
-
-  
-
-  
 }
 

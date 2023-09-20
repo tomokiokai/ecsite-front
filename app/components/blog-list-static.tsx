@@ -22,7 +22,8 @@ async function fetchBlogs(): Promise<Blog[]> {
       method: 'GET',
       credentials: 'include',
       headers: headers,
-      cache: 'force-cache'
+      next: { revalidate: 0 }
+      // cache: 'force-cache'
     });
 
     if (!response.ok) {

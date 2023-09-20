@@ -15,11 +15,13 @@ type State = {
   editedTask: EditedTask;
   updateEditedTask: (payload: EditedTask) => void;
   resetEditedTask: () => void;
-  editedBlog: EditedBlog; // 新しいプロパティ
-  updateEditedBlog: (payload: EditedBlog) => void; // 新しいメソッド
-  resetEditedBlog: () => void; // 新しいメソッド
+  editedBlog: EditedBlog;
+  updateEditedBlog: (payload: EditedBlog) => void;
+  resetEditedBlog: () => void;
   csrfToken: string | null;
   setCsrfToken: (token: string) => void;
+  jwtToken: string | null; // 新しいプロパティ
+  setJwtToken: (token: string) => void; // 新しいメソッド
 }
 
 const useStore = create<State>((set) => ({
@@ -29,15 +31,16 @@ const useStore = create<State>((set) => ({
       editedTask: payload,
     }),
   resetEditedTask: () => set({ editedTask: { id: 0, title: '' } }),
-  editedBlog: { id: 0, title: '', content: '' }, // 新しい初期状態
-  updateEditedBlog: (payload) => // 新しいメソッド
+  editedBlog: { id: 0, title: '', content: '' },
+  updateEditedBlog: (payload) =>
     set({
       editedBlog: payload,
     }),
-  resetEditedBlog: () => set({ editedBlog: { id: 0, title: '', content: '' } }), // 新しいメソッド
+  resetEditedBlog: () => set({ editedBlog: { id: 0, title: '', content: '' } }),
   csrfToken: null,
   setCsrfToken: (token) => set({ csrfToken: token }),
+  jwtToken: null, // 新しい初期状態
+  setJwtToken: (token) => set({ jwtToken: token }), // 新しいメソッド
 }))
 
-export default useStore
-
+export default useStore;

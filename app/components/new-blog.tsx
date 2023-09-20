@@ -2,7 +2,7 @@
 import { FormEvent, useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { Blog } from '../../types'; 
+import { useMutateBlog } from '../../hooks/useMutateBlog';
 
 type NewBlogProps = {
   token: string;
@@ -13,6 +13,7 @@ export default function NewBlog({ token, csrfToken }: NewBlogProps) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const router = useRouter();
+  const { createBlog } = useMutateBlog();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -23,47 +24,23 @@ export default function NewBlog({ token, csrfToken }: NewBlogProps) {
     };
 
     try {
-        const headers = {
-            Authorization: token,
-            'X-CSRF-Token': csrfToken
-        };
+        const createdBlog = await createBlog(blogData); // createBlogメソッドを使用してブログを作成
 
-        const response = await axios.post<Blog>(
-            `${process.env.NEXT_PUBLIC_RESTAPI_URL}/blogs`,
-            blogData,
-            { headers: headers }
-        );
-
-        if (response.status === 201) {
-            router.push('/blogs');
+        if (createdBlog) {
+          router.push('/blogs');
+          router.refresh();
         } else {
-            console.error("Error posting the blog:", response.data);
+            console.error("Error posting the blog:", createdBlog);
         }
     } catch (error) {
         console.error("Error posting the blog:", error);
     }
-};
+  };
 
   useEffect(() => {
     axios.defaults.withCredentials = true;
-    // Authorization ヘッダーを設定
     axios.defaults.headers.common['Authorization'] = token;
-    console.log("Authorization header:", axios.defaults.headers.common['Authorization']);
-
     axios.defaults.headers.common['X-CSRF-Token'] = csrfToken;
-
-
-    // const getCsrfToken = async () => {
-    //   const { data } = await axios.get<CsrfToken>(
-    //     `${process.env.NEXT_PUBLIC_RESTAPI_URL}/csrf`
-    //   );
-    //   axios.defaults.headers.common['X-CSRF-Token'] = data.csrf_token;
-    //   setCsrfToken(data.csrf_token);
-    // };
-    // // X-CSRF-Token ヘッダーが設定されていない場合のみ getCsrfToken を実行
-    // if (!axios.defaults.headers.common['X-CSRF-Token']) {
-    //   getCsrfToken();
-    // }
   }, []);
 
   return (
