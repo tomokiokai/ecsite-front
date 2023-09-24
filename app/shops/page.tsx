@@ -5,7 +5,7 @@ export default function ShopPage() {
   return (
     <div className="m-10 text-center">
       <span className="text-lg">
-        Click a title on the left to view detail 🚀
+        Click on the shop-card to view details 🚀
       </span>
       <div className="my-5 flex justify-center">
         <RouterBtn />

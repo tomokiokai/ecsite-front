@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import ShopCard from './ShopCard';
 import { cookies } from 'next/headers';  // cookies関数をインポート
 
@@ -68,17 +69,17 @@ export default async function ShopListStatic() {
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
         {shopsWithRandomImage && shopsWithRandomImage.map((shop) => (
-          <ShopCard
-            key={shop.id}
-            id={shop.id}
-            imageUrl={shop.imageUrl}
-            shopName={shop.name}
-            description={shop.description}
-            area={shop.area}
-            address={shop.address}
-            genre={shop.genre}
-            // onClick={(id: number) => console.log('Shop clicked:', id)}
-          />
+          <Link prefetch={false} href={`/shops/${shop.id}?imageUrl=${shop.imageUrl}`} key={shop.id}>  
+            <ShopCard
+              id={shop.id}
+              imageUrl={shop.imageUrl}
+              shopName={shop.name}
+              description={shop.description}
+              area={shop.area}
+              address={shop.address}
+              genre={shop.genre}
+            />
+        </Link>
         ))}
       </div>
     </div>

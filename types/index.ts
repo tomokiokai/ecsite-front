@@ -23,3 +23,15 @@ export type Credential = {
   password: string;
 }
 
+export type Shop = {
+  id: number;
+  imageUrl: string;
+  name: string;
+  description: string;
+  area: string;
+  address: string;
+  genre: string;
+  reservationDate?: string;
+  // onClick: (id: number) => void;
+};
+
