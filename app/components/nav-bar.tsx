@@ -28,12 +28,12 @@ export default function NavBar() {
         >
           Auth
         </Link>
-        <Link
+        <a
           href="/shops"
           className="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-500"
         >
           Shop
-        </Link>
+        </a>
         <Link
           href="/auth"
           className="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-500"

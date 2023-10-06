@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import ShopCard from './ShopCard';
+import React from 'react';
+import ShopListClient from './ShopListClient';
 import { cookies } from 'next/headers';  // cookies関数をインポート
 
 type Shop = {
@@ -10,6 +10,17 @@ type Shop = {
   area: string;
   address: string;
   genre: string;
+  is_favorite: boolean;
+};
+
+type FavoriteItem = {
+  id: number;
+  shop: {
+    id: number;
+  };
+  user: {
+    id: number;
+  };
 };
 
 // ランダムな画像URLを生成する関数
@@ -19,19 +30,22 @@ function getRandomImageUrl() {
 }
 
 export default async function ShopListStatic() {
+  const cookieStore = cookies();  // Cookieストアを取得
+  const jwtToken = cookieStore.get('token')?.value || null;
+  const csrfToken = cookieStore.get('_csrf')?.value || null;
+  const userInfo = cookieStore.get('userInfo')?.value || null;
+
   async function fetchShops(): Promise<Shop[]> {
     try {
-      const cookieStore = cookies();  // Cookieストアを取得
-      const jwtToken = cookieStore.get('token');  // 'token'という名前のCookieを取得
-      const csrfToken = cookieStore.get('_csrf');  // '_csrf'という名前のCookieを取得
+      
 
       if (!csrfToken) {
         throw new Error("CSRF token is missing");
       }
 
       const headers = {
-        ...jwtToken ? { Authorization: `${jwtToken.value}` } : {},
-        'X-CSRF-Token': csrfToken.value  // Cookieから取得したCSRFトークンをヘッダーに設定
+        ...jwtToken ? { Authorization: `${jwtToken}` } : {},
+        'X-CSRF-Token': csrfToken  // Cookieから取得したCSRFトークンをヘッダーに設定
       };
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/shops`, {
@@ -54,7 +68,36 @@ export default async function ShopListStatic() {
     }
   }
 
+  // お気に入りの情報を取得する新しい関数
+  async function fetchFavorites(): Promise<Set<number>> {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/build/favorites`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-BUILD-API-KEY': process.env.BUILD_API_KEY || 'default_value'
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to fetch favorites: ${errorText}`);
+    }
+
+    const favoriteData = await response.json();
+    const userInfoObj = JSON.parse(userInfo || '{}');
+    const userId = userInfoObj.id;
+
+    const userFavorites = favoriteData.filter((fav: FavoriteItem) => fav.user.id === userId);
+    const favoriteIds = new Set<number>();
+    for (const item of userFavorites) {
+      favoriteIds.add(item.shop.id);
+    }
+    return favoriteIds;
+  }
+
   const shops = await fetchShops();
+  const favorites = await fetchFavorites();
+  console.log(favorites);
 
   // 各ショップに対してランダムな画像URLを生成
   const shopsWithRandomImage = shops.map(shop => ({
@@ -63,26 +106,7 @@ export default async function ShopListStatic() {
   }));
 
   return (
-    <div className="p-4">
-      <p className="mb-4 pb-3 text-xl font-medium underline underline-offset-4">
-        Shops
-      </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
-        {shopsWithRandomImage && shopsWithRandomImage.map((shop) => (
-          <Link prefetch={false} href={`/shops/${shop.id}?imageUrl=${shop.imageUrl}`} key={shop.id}>  
-            <ShopCard
-              id={shop.id}
-              imageUrl={shop.imageUrl}
-              shopName={shop.name}
-              description={shop.description}
-              area={shop.area}
-              address={shop.address}
-              genre={shop.genre}
-            />
-        </Link>
-        ))}
-      </div>
-    </div>
+    <ShopListClient shops={shopsWithRandomImage} initialFavorites={favorites} token={jwtToken} csrfToken={csrfToken} userInfo={userInfo}/>
   );
 };
 
