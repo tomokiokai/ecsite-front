@@ -12,6 +12,7 @@ const fetchShopData = async (shopId: string) => {
     headers: {
       'Content-Type': 'application/json',
     },
+    next: { revalidate: 0 }
   });
   const shop: Shop = await res.json();
   return shop;
@@ -22,6 +23,7 @@ const fetchFavoriteStatus = async (shopId: string) => {
     headers: {
       'Content-Type': 'application/json',
     },
+    next: { revalidate: 0 }
   });
   const favoriteData = await res.json();
   return Boolean(favoriteData);

@@ -1,5 +1,6 @@
 "use client"
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import ShopCard from './ShopCard';
 import axios from 'axios';  // axiosをインポート
 
@@ -24,6 +25,7 @@ type Props = {
 
 export default function ShopListClient({ shops, initialFavorites, token, csrfToken, userInfo }: Props) {
   const [favorites, setFavorites] = useState(initialFavorites);  // お気に入りの状態を管理するステート
+  const router = useRouter();
   const onToggleFavorite = async (shopId: number) => {
     const isFavorite = favorites.has(shopId);  // 現在のお気に入りの状態をチェック
     const newFavorites = new Set(favorites);  // 現在のお気に入りのセットをコピー
@@ -52,6 +54,8 @@ export default function ShopListClient({ shops, initialFavorites, token, csrfTok
         data: JSON.stringify({ shop_id: shopId, user_id: userId }),
         withCredentials: true, 
       });
+
+      router.refresh();
     } catch (error) {
       // エラーハンドリング
       console.error('Failed to toggle favorite', error);

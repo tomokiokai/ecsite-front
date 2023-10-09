@@ -16,24 +16,24 @@ export default function NavBar() {
         >
           todo
         </Link>
-        <a
+        <Link
           href="/blogs"
           className="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-500"
         >
           blog
-        </a>
+        </Link>
         <Link
           href="/auth"
           className="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-500"
         >
           Auth
         </Link>
-        <a
+        <Link
           href="/shops"
           className="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-500"
         >
           Shop
-        </a>
+        </Link>
         <Link
           href="/auth"
           className="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-500"
