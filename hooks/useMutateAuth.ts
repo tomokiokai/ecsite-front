@@ -15,6 +15,7 @@ export const useMutateAuth = () => {
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/login`, user);
       router.push('/todo');
+      router.refresh();
     } catch (err: any) {
       if (err.response?.data?.message) {
         switchErrorHandling(err.response.data.message);
@@ -40,8 +41,8 @@ export const useMutateAuth = () => {
   try {
     await axios.post(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/logout`);
     resetEditedTask();
-    router.replace(currentPath); // 現在のページにリダイレクト
     router.push('/'); // 最終的にルートページにリダイレクト
+    router.refresh();
   } catch (err: any) {
     if (err.response?.data?.message) {
       switchErrorHandling(err.response.data.message);

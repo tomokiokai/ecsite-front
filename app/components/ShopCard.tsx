@@ -12,6 +12,7 @@ type Props = {
   reservationDate?: string;
   isFavorite: boolean; 
   onToggleFavorite?: (shopId: number) => Promise<void>;
+  isLoggedIn: boolean;
   link: string;
 };
 
@@ -27,6 +28,7 @@ export default function ShopCard(props: Props) {
     reservationDate,
     isFavorite,  
     onToggleFavorite,
+    isLoggedIn,
     link,
   } = props;
 
@@ -57,17 +59,19 @@ export default function ShopCard(props: Props) {
               )}
           </div>
         </Link>
-        <button onClick={() => {
-          if (onToggleFavorite) {  // onToggleFavoriteがundefinedでないことを確認
-            onToggleFavorite(id);
-          }
-        }}>
-          {isFavorite ? (
-            <span className="text-red-500">❤️</span>
-          ) : (
-            <span className="text-gray-500">♡</span>
-          )}
-        </button>
+        {isLoggedIn && (
+          <button onClick={() => {
+            if (onToggleFavorite) {
+              onToggleFavorite(id);
+            }
+          }}>
+            {isFavorite ? (
+              <span className="text-red-500">❤️</span>
+            ) : (
+              <span className="text-gray-500">♡</span>
+            )}
+          </button>
+        )}
     </div>
     );
 }

@@ -9,7 +9,7 @@ import 'swiper/css/effect-coverflow';
 import Image from 'next/image';
 
 function getRandomImageUrl() {
-  const randomNum = Math.floor(Math.random() * 10);
+  const randomNum = Math.floor(Math.random() * 20);
   return `http://unsplash.it/500/300?random=${randomNum}`;
 }
 
@@ -73,8 +73,8 @@ const HeroSection = () => {
         >
           {imageUrls.map((url, index) => (
             <SwiperSlide key={index} className="h-[500px] overflow-hidden relative">
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xl z-10 slide-text" style={{ opacity: index === 0 ? '1' : '0' }}>
-                Slide {index + 1}
+              <div className="absolute inset-0 flex items-center justify-center z-10 slide-text animate-slideUp" style={{ opacity: index === 0 ? '1' : '0' }}>
+                <span className="text-white text-xl">Slide {index + 1}</span>
               </div>
               <Image src={url} alt={`Slide ${index + 1}`} layout="fill" objectFit="cover" />
             </SwiperSlide>

@@ -80,6 +80,7 @@ export default function ShopListClient({ shops, initialFavorites, token, csrfTok
             isFavorite={favorites.has(shop.id)}  // お気に入りの状態を渡す
             onToggleFavorite={onToggleFavorite}  // お気に入りをトグルする関数を渡す
             link={`/shops/${shop.id}?imageUrl=${shop.imageUrl}`}  // リンクを渡す
+            isLoggedIn={!!token}
             key={shop.id}
           />
         ))}
