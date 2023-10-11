@@ -3,7 +3,7 @@ import HeroSection from './components/HeroSection';
 export default function Home() {
   return (
     <main>
-      <HeroSection /> {/* ここでHeroSectionコンポーネントを使用 */}
+      <HeroSection />
       <div className="m-10 text-center">Hello World</div>
     </main>
   );
