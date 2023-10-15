@@ -82,7 +82,24 @@ const HeroSection = () => {
           <div className="swiper-button-next"></div>
           <div className="swiper-button-prev"></div>
         </Swiper>
+        
       </div>
+      <div className="flex justify-center items-center mt-6">
+        <Image
+          src="/arrow.svg"
+          alt="Arrow"
+          width={5}
+          height={50}
+          className="hero__downarrow animate-zoomInOut"
+        />
+        <span
+          className="transform rotate-90 text-black text-opacity-70 text-xl">scroll
+        </span>
+      </div>
+      
+  
+
+
     </div>
   );
 }

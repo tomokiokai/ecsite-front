@@ -12,9 +12,15 @@ module.exports = {
           '0%': { transform: 'translateY(100%)', opacity: 0 },
           '100%': { transform: 'translateY(0)', opacity: 1 },
         },
+        zoomInOut: {
+          '0%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.2)' },
+          '100%': { transform: 'scale(1)' },
+        },
       },
       animation: {
         slideUp: 'slideUp 1s forwards',
+        zoomInOut: 'zoomInOut 2s infinite',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
