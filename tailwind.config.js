@@ -27,7 +27,41 @@ module.exports = {
         'gradient-conic':
           'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
+      spacing: {
+        '-12': '-3rem',
+      },
     },
   },
-  plugins: [],
-}
+  plugins: [
+    function ({ addComponents }) {
+      const components = {
+        '.icon': {
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          '&::before': {
+            content: '""',
+            display: 'block',
+            width: '1em',
+            height: '1em',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: 'contain',
+            marginBottom: '0.5em',
+            transform: 'rotate(90deg)', 
+          },
+        },
+        '.icon.twitter::before': {
+          backgroundImage: 'url(/twitter.svg)',
+        },
+        '.icon.fb::before': {
+          backgroundImage: 'url(/facebook.svg)',
+        },
+        '.writing-mode-vertical-rl span': {
+          writingMode: 'vertical-rl',
+        },
+      };
+      addComponents(components);
+    },
+  ],
+};

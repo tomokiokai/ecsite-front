@@ -2,6 +2,7 @@ import HeroSection from './components/HeroSection';
 import HomeCard from './components/HomeCard'; 
 import NewsPage from './components/news';
 import WeatherCard from './components/WeatherCard';
+import SideLinks from './components/SideLinks';
 
 export default function Home() {
   const cities = ['Fukui','Tokyo', 'Osaka', 'Nagoya']; 
@@ -19,6 +20,7 @@ export default function Home() {
           <WeatherCard key={city} city={city} />
         ))}
       </div>
+      <SideLinks />
     </main>
   );
 }
