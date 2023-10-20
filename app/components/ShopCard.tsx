@@ -12,7 +12,7 @@ type Props = {
   reservationDate?: string;
   isFavorite: boolean; 
   onToggleFavorite?: (shopId: number) => Promise<void>;
-  isLoggedIn: boolean;
+  isLoggedIn?: boolean;
   link: string;
 };
 

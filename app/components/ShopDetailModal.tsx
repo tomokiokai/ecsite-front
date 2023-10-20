@@ -1,5 +1,6 @@
 import { Shop } from '../../types';
 import BackBtn from '../components/back-btn';
+import ReserveBtn from '../components/reserve-btn'
 import Image from 'next/image';
 
 type Props = {
@@ -7,6 +8,7 @@ type Props = {
 };
 
 const ShopDetailModal: React.FC<Props> = ({ shop }) => {
+  const { id: shopId } = shop;
   return (
     <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-4 rounded-lg w-[1000px] h-[600px] mx-auto overflow-auto flex flex-col justify-center items-center">
@@ -30,9 +32,10 @@ const ShopDetailModal: React.FC<Props> = ({ shop }) => {
           <div className="text-center">
             <p className="text-lg">コメント：{shop.description}</p>
           </div>
-          <div className="my-5 flex justify-center">
-        <BackBtn />
-      </div>
+          <div className="my-5 flex justify-center space-x-8">
+            <BackBtn />
+            <ReserveBtn shopId={shopId.toString()} />
+          </div>
         </div>
       </div>
     </div>
