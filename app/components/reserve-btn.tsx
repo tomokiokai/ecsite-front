@@ -2,22 +2,25 @@
 import { useRouter } from 'next/navigation'; 
 
 type Props = {
-  shopId: string; 
+  shopId: string;
+  token: string | undefined;
 };
 
-const ReserveBtn: React.FC<Props> = ({ shopId }) => {
+const ReserveBtn: React.FC<Props> = ({ shopId, token }) => {
   const router = useRouter();
 
-  // Function to handle the button click
   const handleReserve = () => {
-    // Navigate to the reservation page with the shopId as a query parameter
-    router.push(`/reserve?shopId=${shopId}`);
+    if (!token) {
+      router.push('/auth');
+    } else {
+      router.push(`/reserve?shopId=${shopId}`);
+    }
   };
 
   return (
     <button
       className="rounded bg-green-600 px-3 py-1 font-medium text-white hover:bg-green-700"
-      onClick={handleReserve}  // Set the click handler
+      onClick={handleReserve}
     >
       Reserve
     </button>

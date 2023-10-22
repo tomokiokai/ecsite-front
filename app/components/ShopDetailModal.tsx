@@ -2,12 +2,15 @@ import { Shop } from '../../types';
 import BackBtn from '../components/back-btn';
 import ReserveBtn from '../components/reserve-btn'
 import Image from 'next/image';
+import { cookies } from 'next/headers';
 
 type Props = {
   shop: Shop;
 };
 
 const ShopDetailModal: React.FC<Props> = ({ shop }) => {
+  const cookieStore = cookies();
+  const jwtToken = cookieStore.get('token');
   const { id: shopId } = shop;
   return (
     <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
@@ -34,7 +37,7 @@ const ShopDetailModal: React.FC<Props> = ({ shop }) => {
           </div>
           <div className="my-5 flex justify-center space-x-8">
             <BackBtn />
-            <ReserveBtn shopId={shopId.toString()} />
+            <ReserveBtn shopId={shopId.toString()} token={jwtToken?.value} />
           </div>
         </div>
       </div>
