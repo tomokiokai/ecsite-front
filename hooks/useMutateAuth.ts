@@ -41,6 +41,7 @@ export const useMutateAuth = () => {
   try {
     await axios.post(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/logout`);
     resetEditedTask();
+    document.cookie = "authToken=; Max-Age=0; path=/;";
     router.push('/'); // 最終的にルートページにリダイレクト
     router.refresh();
   } catch (err: any) {
