@@ -51,7 +51,7 @@ export default function NavBar() {
             Shop
           </Link>
           <Link
-            href="/auth"
+            href="/mypage"
             className="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-500"
           >
             MyPage

@@ -14,6 +14,7 @@ type Props = {
   onToggleFavorite?: (shopId: number) => Promise<void>;
   isLoggedIn?: boolean;
   link: string;
+  reservationInfo?: { date: string; time: string | undefined; }[];
 };
 
 export default function ShopCard(props: Props) {
@@ -30,6 +31,7 @@ export default function ShopCard(props: Props) {
     onToggleFavorite,
     isLoggedIn,
     link,
+    reservationInfo
   } = props;
 
   
@@ -52,11 +54,18 @@ export default function ShopCard(props: Props) {
               <p className="text-sm text-gray-500 mt-1">{area}</p>
               <p className="text-sm text-gray-500 mt-1">{address}</p>
               <p className="text-sm text-gray-500 mt-1">{description}</p>
-              {reservationDate && (
-                <p className="text-md text-blue-500 mt-1">
-                  Reservation: {reservationDate}
-                </p>
-              )}
+              {reservationInfo && reservationInfo.length > 0 && (
+        <div className="mt-1">
+          <p className="text-md text-blue-500">Reservations</p>
+          <ul>
+            {reservationInfo.map((info, index) => (
+              <li key={index} className="text-sm text-gray-500">
+                {`${info.date} at ${info.time}`} {/* 日付と時間を表示 */}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
           </div>
         </Link>
         {isLoggedIn && (

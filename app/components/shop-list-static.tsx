@@ -97,7 +97,6 @@ export default async function ShopListStatic() {
 
   const shops = await fetchShops();
   const favorites = await fetchFavorites();
-  console.log(favorites);
 
   // 各ショップに対してランダムな画像URLを生成
   const shopsWithRandomImage = shops.map(shop => ({
