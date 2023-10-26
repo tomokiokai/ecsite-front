@@ -1,5 +1,7 @@
 "use client"
-import React from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
 import ShopCard from './ShopCard';
 
 type Shop = {
@@ -40,13 +42,14 @@ type Props = {
 const MyPageContent: React.FC<Props> = ({ 
   favoriteShops, 
   reservedShops, 
-  favorites, 
+  favorites: initialFavorites,
   reservations, 
   jwtToken, 
   csrfToken, 
   userInfo 
 }) => {
-
+  const [favorites, setFavorites] = useState(new Set<number>(initialFavorites))
+  const router = useRouter();
   const userInfoObj = JSON.parse(userInfo || '{}');
   const currentUserId = userInfoObj.id;
 
@@ -74,33 +77,49 @@ function findReservationsForShop(reservations: ReservationItem[], shopId: number
   }));
 }
 
-async function handleToggleFavorite(shopId: number, isFavorite: boolean, jwtToken: string | null, csrfToken: string | null, userInfo: string | null) {
-  // お気に入りの追加または削除を行う
-  // この関数は、ShopCardコンポーネントからトリガーされ、お気に入りの状態が変更されたときに呼び出されます。
+const handleToggleFavorite = async (shopId: number) => {
+    const isFavorite = favorites.has(shopId);
+    const newFavorites = new Set(favorites);
 
-  const method = isFavorite ? 'DELETE' : 'POST'; // isFavoriteは現在のお気に入りの状態を反映する変数です
-  const url = isFavorite ? 
-    `${process.env.NEXT_PUBLIC_RESTAPI_URL}/favorites/${shopId}` : 
-    `${process.env.NEXT_PUBLIC_RESTAPI_URL}/favorites`;
+    if (isFavorite) {
+      newFavorites.delete(shopId);
+    } else {
+      newFavorites.add(shopId);
+    }
 
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    // jwtToken または csrfToken が null の場合、ヘッダーに追加しない
-    ...(jwtToken ? { 'Authorization': jwtToken } : {}),
-    ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
+    setFavorites(newFavorites); // お気に入りの状態を更新
+
+    // APIエンドポイントの設定
+    const apiUrl = `${process.env.NEXT_PUBLIC_RESTAPI_URL}/favorites/${isFavorite ? `${shopId}/${currentUserId}` : ''}`;
+    const method = isFavorite ? 'DELETE' : 'POST';
+
+    // リクエストヘッダーの設定
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': jwtToken, // トークンがnullでないことを確認
+      'X-CSRF-Token': csrfToken,
+    };
+
+    // リクエストデータの設定（お気に入りを追加する場合のみ）
+    const data = isFavorite ? null : JSON.stringify({ shop_id: shopId, user_id: currentUserId });
+
+    try {
+      // axiosを使用してHTTPリクエストを送信
+      await axios({
+        method,
+        url: apiUrl,
+        headers,
+        data,
+        withCredentials: true, // クッキー情報を含める場合
+      });
+
+      // ページのデータをリフレッシュ
+      router.refresh(); // router.refresh() ではなく router.reload() を使用
+    } catch (error) {
+      console.error('Failed to toggle favorite', error);
+      // ここでエラーメッセージをユーザーに表示するなど、追加のエラーハンドリングを行うことができます。
+    }
   };
-
-  const response = await fetch(url, {
-    method,
-    headers,
-    body: JSON.stringify({ shopId, userId: userInfoObj.id }), // userInfoからユーザーIDを取得します
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to toggle favorite');
-  }
-
-}
 
   return (
   <div className="mypage-container" style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -118,8 +137,8 @@ async function handleToggleFavorite(shopId: number, isFavorite: boolean, jwtToke
             address={shop.address}
             genre={shop.genre}
             isFavorite={favorites.has(shop.id)}
-            onToggleFavorite={() => handleToggleFavorite(shop.id, favorites.has(shop.id), jwtToken, csrfToken, userInfo)}
-            link={`/shops/${shop.id}`}
+            onToggleFavorite={() => handleToggleFavorite(shop.id)}
+            link={`/shops/${shop.id}?imageUrl=${shop.imageUrl}`}
             isLoggedIn={!!jwtToken}
           />
         ))}
@@ -144,7 +163,7 @@ async function handleToggleFavorite(shopId: number, isFavorite: boolean, jwtToke
             genre={shop.genre}
             reservationInfo={findReservationsForShop(reservations, shop.id, currentUserId)}
             isFavorite={favorites.has(shop.id)}
-            link={`/shops/${shop.id}`}
+            link={`/shops/${shop.id}?imageUrl=${shop.imageUrl}`}
           />
         ))}
       </div>

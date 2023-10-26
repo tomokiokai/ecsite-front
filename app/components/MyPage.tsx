@@ -1,6 +1,7 @@
 import React from 'react';
 import MyPageContent from './MyPageContent'; 
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 type Shop = {
   id: number;
@@ -45,6 +46,10 @@ export default async function MyPage() {
   const jwtToken = cookieStore.get('token')?.value || null;
   const csrfToken = cookieStore.get('_csrf')?.value || null;
   const userInfo = cookieStore.get('userInfo')?.value || '{}';
+
+  if (!jwtToken) {
+    return redirect('/auth'); // ここでリダイレクトを実行
+  }
 
   // ショップ、お気に入り、予約のデータを取得
   const shops = await fetchShops(jwtToken, csrfToken);
