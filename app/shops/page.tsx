@@ -7,9 +7,6 @@ export default function ShopPage() {
       <span className="text-lg">
         Click on the shop-card to view details 🚀
       </span>
-      <div className="my-5 flex justify-center">
-        <RouterBtn />
-      </div>
       <div className="mt-5">
         <ShopListStatic />  {/* ShopListStaticコンポーネントをレンダリング */}
       </div>

@@ -54,24 +54,28 @@ const MyPageContent: React.FC<Props> = ({
   const currentUserId = userInfoObj.id;
 
 function formatDate(dateString: string) {
+  // DateオブジェクトをUTCで解析する
   const date = new Date(dateString);
-  const year = date.getFullYear();
-  let month = date.getMonth() + 1; // getMonth()は0から11までの値を返すため、1を加算します。
-  let day = date.getDate();
+  const year = date.getUTCFullYear(); // UTCの年を取得
+  let month = date.getUTCMonth() + 1; // UTCの月を取得（0-11の範囲なので1を加算）
+  let day = date.getUTCDate(); // UTCの日を取得
 
   // 月と日が10未満の場合は、先頭に'0'を付けて2桁にします。
   const monthStr = (month < 10 ? '0' : '') + month.toString();
   const dayStr = (day < 10 ? '0' : '') + day.toString();
 
+  // UTC日付の文字列を返す
   return `${year}-${monthStr}-${dayStr}`;
 }
+
 
 function findReservationsForShop(reservations: ReservationItem[], shopId: number, userId: number) {
   // 特定のショップの予約を見つけ、ログインしているユーザーの予約のみをフィルタリングする
   const shopReservations = reservations.filter(res => res.shop_id === shopId && res.user_id === userId);
-  
+  console.log(shopReservations)
   // 予約の日付と時間の配列を返します。この際、日付は指定された形式に変換します。
   return shopReservations.map(res => ({ 
+    id: res.id,
     date: res.date ? formatDate(res.date) : '',
     time: res.time
   }));
@@ -121,11 +125,33 @@ const handleToggleFavorite = async (shopId: number) => {
     }
   };
 
+  const handleCancelReservation = async (reservationId: number) => {
+    console.log("Called handleCancelReservation with:", reservationId);
+  try {
+    const apiUrl = `${process.env.NEXT_PUBLIC_RESTAPI_URL}/reservations/${reservationId}`;
+
+    // リクエストヘッダーの設定
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': jwtToken, // トークンがnullでないことを確認
+    };
+
+    // axiosを使用してHTTP DELETEリクエストを送信
+    await axios.delete(apiUrl, { headers });
+
+    // ページのデータをリフレッシュ
+    router.refresh();
+  } catch (error) {
+    console.error('Failed to cancel reservation', error);
+    // ここでエラーメッセージをユーザーに表示するなど、追加のエラーハンドリングを行うことができます。
+  }
+};
+
   return (
   <div className="mypage-container" style={{ display: 'flex', justifyContent: 'space-between' }}>
-    <div className="favorites-section" style={{ flex: 1, marginRight: '10px' }}>
+    <div className="favorites-section" style={{ flex: 1, marginRight: '5px' }}>
       <h2>Favorite</h2>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', justifyContent: 'start' }}> {/* gapの値を'10px'から'5px'に変更 */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'start' }}> {/* gapの値を'10px'から'5px'に変更 */}
         {favoriteShops.map(shop => (
           <ShopCard
             key={shop.id}
@@ -146,11 +172,11 @@ const handleToggleFavorite = async (shopId: number) => {
     </div>
 
     {/* ここに縦線を追加します。 */}
-    <div style={{ width: '2px', backgroundColor: '#D1D5DB', margin: '0 10px' }}></div>
+    <div style={{ width: '2px', backgroundColor: '#D1D5DB', margin: '0 5px' }}></div>
 
     <div className="reservations-section" style={{ flex: 1, marginLeft: '10px' }}>
       <h2>Reservation</h2>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', justifyContent: 'start' }}> {/* gapの値を'10px'から'5px'に変更 */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'start' }}> {/* gapの値を'10px'から'5px'に変更 */}
         {reservedShops.map(shop => (
           <ShopCard
             key={shop.id}
@@ -164,6 +190,7 @@ const handleToggleFavorite = async (shopId: number) => {
             reservationInfo={findReservationsForShop(reservations, shop.id, currentUserId)}
             isFavorite={favorites.has(shop.id)}
             link={`/shops/${shop.id}?imageUrl=${shop.imageUrl}`}
+            onCancelReservation={(reservationId) => handleCancelReservation(reservationId)}
           />
         ))}
       </div>

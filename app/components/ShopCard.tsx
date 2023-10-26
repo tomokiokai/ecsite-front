@@ -14,7 +14,8 @@ type Props = {
   onToggleFavorite?: (shopId: number) => Promise<void>;
   isLoggedIn?: boolean;
   link: string;
-  reservationInfo?: { date: string; time: string | undefined; }[];
+  reservationInfo?: { id: number; date: string; time: string | undefined; }[];
+  onCancelReservation?: (reservationId: number) => void;
 };
 
 export default function ShopCard(props: Props) {
@@ -31,7 +32,7 @@ export default function ShopCard(props: Props) {
     onToggleFavorite,
     isLoggedIn,
     link,
-    reservationInfo
+    reservationInfo,
   } = props;
 
   
@@ -53,21 +54,41 @@ export default function ShopCard(props: Props) {
               <p className="text-sm text-gray-500 mt-1">{genre}</p>
               <p className="text-sm text-gray-500 mt-1">{area}</p>
               <p className="text-sm text-gray-500 mt-1">{address}</p>
-              <p className="text-sm text-gray-500 mt-1">{description}</p>
-              {reservationInfo && reservationInfo.length > 0 && (
-        <div className="mt-1">
-          <p className="text-md text-blue-500">Reservations</p>
-          <ul>
-            {reservationInfo.map((info, index) => (
-              <li key={index} className="text-sm text-gray-500">
-                {`${info.date} at ${info.time}`} {/* 日付と時間を表示 */}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+          <p className="text-sm text-gray-500 mt-1">{description}</p>
           </div>
         </Link>
+              {
+  reservationInfo && reservationInfo.length > 0 && (
+    <div className="mt-1">
+      <p className="text-md text-blue-500">Reservations</p>
+      <ul>
+        {reservationInfo.map((info, index) => (
+          <li key={index} className="text-sm text-gray-500" style={{ lineHeight: '24px' }}>
+            <span style={{ verticalAlign: 'middle' }}>
+              {`${info.date} at ${info.time}`} {/* 日付と時間を表示 */}
+            </span>
+            {props.onCancelReservation && (
+              <div 
+                onClick={() => props.onCancelReservation?.(info.id)} 
+                style={{ cursor: 'pointer', display: 'inline-block', marginLeft: '10px', verticalAlign: 'middle' }} // カーソルをポインタに変更し、クリック可能であることを示す。また、テキストからの間隔を取ります。
+              >
+                <Image 
+                  src="https://img.icons8.com/ios/50/000000/cancel.png" // キャンセルアイコンのURL
+                  alt="Cancel" 
+                  width={20} // 画像の幅を指定
+                  height={20} // 画像の高さを指定
+                />
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+
+          
         {isLoggedIn && (
           <button onClick={() => {
             if (onToggleFavorite) {
