@@ -24,7 +24,7 @@ const fetchShopData = async (shopId: string) => {
   return shop;
 };
 
-export default async function ShopDetailPage({ params, searchParams }: Params) {
+export default async function ShopDetailPage({ params, searchParams }: { params: { shopId: string }, searchParams: SearchParams }) {
   const shop = await fetchShopData(params.shopId);
   const imageUrl = searchParams.imageUrl;
   return (

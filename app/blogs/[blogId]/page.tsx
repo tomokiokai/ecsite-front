@@ -47,7 +47,7 @@ async function fetchBlog(blogId: string): Promise<FetchBlogResult> {
   return { blog, token: jwtToken?.value, csrfToken: csrfToken.value };
 }
 
-export default async function BlogDetailPage({ params }: PageProps) {
+export default async function BlogDetailPage({ params }: { params: { blogId: string } }) {
   const { blog, token, csrfToken } = await fetchBlog(params.blogId);
   if (!blog) return notFound();
   return (
