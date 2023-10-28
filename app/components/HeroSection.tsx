@@ -8,20 +8,12 @@ import 'swiper/css/pagination';
 import 'swiper/css/effect-coverflow';
 import Image from 'next/image';
 
-function getRandomImageUrl() {
-  const randomNum = Math.floor(Math.random() * 20);
-  return `http://unsplash.it/500/300?random=${randomNum}`;
+interface HeroSectionProps {
+  imageUrls: string[];
 }
 
-const HeroSection = () => {
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
+const HeroSection: React.FC<HeroSectionProps> = ({ imageUrls }) => {
   const swiperRef = useRef<SwiperRef>(null);
-
-  useEffect(() => {
-    const urls = Array(6).fill(0).map(() => getRandomImageUrl());
-    setImageUrls(urls);
-  }, []);
-
   const handleSlideChange = () => {
     if (swiperRef.current) {
       const swiper = swiperRef.current.swiper;
@@ -96,10 +88,6 @@ const HeroSection = () => {
           className="transform rotate-90 text-black text-opacity-70 text-xl">scroll
         </span>
       </div>
-      
-  
-
-
     </div>
   );
 }

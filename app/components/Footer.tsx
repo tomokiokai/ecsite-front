@@ -26,7 +26,7 @@ export default function Footer() {
             <Link href="/shops">
               <span className="cursor-pointer text-gray-400 hover:text-white text-xl">Shop</span>
             </Link>
-            <Link href="/auth">
+            <Link href="/mypage">
               <span className="cursor-pointer text-gray-400 hover:text-white text-xl">MyPage</span>
             </Link>
           </nav>
