@@ -47,7 +47,7 @@ export default function ShopListClient({ shops, initialFavorites, token, csrfTok
         url: isFavorite ? `${process.env.NEXT_PUBLIC_RESTAPI_URL}/favorites/${shopId}/${userId}` : `${process.env.NEXT_PUBLIC_RESTAPI_URL}/favorites`,
         method: isFavorite ? 'DELETE' : 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          // 'Content-Type': 'application/json',
           'Authorization': token ,
           'X-CSRF-Token': csrfToken ,
         },

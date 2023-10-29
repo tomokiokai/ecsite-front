@@ -99,7 +99,7 @@ const handleToggleFavorite = async (shopId: number) => {
 
     // リクエストヘッダーの設定
     const headers = {
-      'Content-Type': 'application/json',
+      // 'Content-Type': 'application/json',
       'Authorization': jwtToken, // トークンがnullでないことを確認
       'X-CSRF-Token': csrfToken,
     };

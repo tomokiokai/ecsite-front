@@ -10,7 +10,7 @@ export default async function Reserve() {
     if (csrfToken) {
       const res = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/reservations`, {
         headers: {
-          'Content-Type': 'application/json',
+          // 'Content-Type': 'application/json',
           ...jwtToken ? { Authorization: `${jwtToken.value}` } : {},
           'X-CSRF-Token': csrfToken.value
         },

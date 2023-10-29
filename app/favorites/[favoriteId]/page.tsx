@@ -10,7 +10,7 @@ type Params = {
 const fetchShopData = async (shopId: string) => {
   const res = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/shops/${shopId}`, {
     headers: {
-      'Content-Type': 'application/json',
+      // 'Content-Type': 'application/json',
     },
     next: { revalidate: 0 }
   });
@@ -21,7 +21,7 @@ const fetchShopData = async (shopId: string) => {
 const fetchFavoriteStatus = async (shopId: string) => {
   const res = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/favorites/${shopId}`, {
     headers: {
-      'Content-Type': 'application/json',
+      // 'Content-Type': 'application/json',
     },
     next: { revalidate: 0 }
   });
@@ -40,7 +40,7 @@ export default async function ShopPage({ params }: Params) {
 export async function generateStaticParams() {
   const resShop = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/shops`, {
     headers: {
-      'Content-Type': 'application/json',
+      // 'Content-Type': 'application/json',
     },
   });
   const shops: Shop[] = await resShop.json();

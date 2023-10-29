@@ -130,7 +130,7 @@ async function fetchFavorites(userInfo: string): Promise<Set<number>> {
   const response = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/build/favorites`, {
     method: 'GET',
     headers: {
-      'Content-Type': 'application/json',
+      // 'Content-Type': 'application/json',
       'X-BUILD-API-KEY': process.env.BUILD_API_KEY || 'default_value'
     },
   });
