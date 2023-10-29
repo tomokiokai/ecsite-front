@@ -31,7 +31,7 @@ async function fetchBlog(blogId: string): Promise<FetchBlogResult> {
   const headers = {
     ...jwtToken ? { Authorization: `${jwtToken.value}` } : {},
     'X-CSRF-Token': csrfToken.value,
-    // 'Content-Type': 'application/json',
+    'Content-Type': 'application/json',
   };
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/blogs/${blogId}`, {
@@ -83,7 +83,7 @@ export default async function BlogDetailPage({ params }: { params: { blogId: str
 export async function generateStaticParams() {
   const res = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/build/blogs`, {
     headers: {
-      // 'Content-Type': 'application/json',
+      'Content-Type': 'application/json',
       'X-BUILD-API-KEY': process.env.BUILD_API_KEY || 'default_value'
     },
   });
