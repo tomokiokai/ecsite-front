@@ -44,14 +44,15 @@ export default async function ShopListStatic() {
       }
 
       const headers = {
-        ...jwtToken ? { Authorization: `${jwtToken}` } : {},
-        'X-CSRF-Token': csrfToken  // Cookieから取得したCSRFトークンをヘッダーに設定
+        // ...jwtToken ? { Authorization: `${jwtToken}` } : {},
+        // 'X-CSRF-Token': csrfToken  // Cookieから取得したCSRFトークンをヘッダーに設定
+        'Content-Type': 'Content-Type',
       };
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/shops`, {
         method: 'GET',
         credentials: 'include',  // credentialsオプションを追加
-        // headers: headers,  // headersオプションを追加
+        headers: headers,  // headersオプションを追加
         next: { revalidate: 0 }
       });
 

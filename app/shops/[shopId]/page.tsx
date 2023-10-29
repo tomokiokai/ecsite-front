@@ -17,7 +17,7 @@ type Params = {
 const fetchShopData = async (shopId: string) => {
   const res = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/shops/${shopId}`, {
     headers: {
-      'Content-Type': 'text/x-component',
+      'Content-Type': 'application/json',
     },
   });
   const shop: Shop = await res.json();
