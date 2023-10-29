@@ -21,7 +21,6 @@ const fetchShopData = async (shopId: string) => {
     },
   });
   const shop: Shop = await res.json();
-  console.log(shop)
   return shop;
 };
 

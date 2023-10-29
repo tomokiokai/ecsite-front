@@ -46,7 +46,7 @@ export default async function ShopListStatic() {
       const headers = {
         // ...jwtToken ? { Authorization: `${jwtToken}` } : {},
         // 'X-CSRF-Token': csrfToken  // Cookieから取得したCSRFトークンをヘッダーに設定
-        'Content-Type': 'Content-Type',
+        'Content-Type': 'application/json',
       };
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/shops`, {
@@ -55,13 +55,13 @@ export default async function ShopListStatic() {
         headers: headers,  // headersオプションを追加
         next: { revalidate: 0 }
       });
-
       if (!response.ok) {
         const errorText = await response.text();  // サーバーからのエラーメッセージを取得
         throw new Error(`Failed to fetch data in server: ${errorText}`);
       }
 
-      const shops: Shop[] = await response.json();
+      const shops: Shop[] = await response.json();   
+      console.log(shops)
       return shops;
     } catch (error) {
       console.error("Error fetching shops:", error);

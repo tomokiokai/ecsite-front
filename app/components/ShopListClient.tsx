@@ -24,6 +24,7 @@ type Props = {
 };
 
 export default function ShopListClient({ shops, initialFavorites, token, csrfToken, userInfo }: Props) {
+  
   const [favorites, setFavorites] = useState(initialFavorites);  // お気に入りの状態を管理するステート
   const router = useRouter();
   const onToggleFavorite = async (shopId: number) => {
