@@ -39,13 +39,9 @@ export default async function ShopListStatic() {
     try {
       
 
-      if (!csrfToken) {
-        throw new Error("CSRF token is missing");
-      }
-
       const headers = {
         // ...jwtToken ? { Authorization: `${jwtToken}` } : {},
-        // 'X-CSRF-Token': csrfToken  // Cookieから取得したCSRFトークンをヘッダーに設定
+        // 'X-CSRF-Token': csrfToken,  // Cookieから取得したCSRFトークンをヘッダーに設定
         'Content-Type': 'application/json',
       };
 
@@ -53,15 +49,9 @@ export default async function ShopListStatic() {
         method: 'GET',
         credentials: 'include',  // credentialsオプションを追加
         headers: headers,  // headersオプションを追加
-        next: { revalidate: 0 }
       });
-      if (!response.ok) {
-        const errorText = await response.text();  // サーバーからのエラーメッセージを取得
-        throw new Error(`Failed to fetch data in server: ${errorText}`);
-      }
-
-      const shops: Shop[] = await response.json();   
-      console.log(shops)
+      
+      const shops: Shop[] = await response.json();
       return shops;
     } catch (error) {
       console.error("Error fetching shops:", error);
