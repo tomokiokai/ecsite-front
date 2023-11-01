@@ -25,7 +25,6 @@ export const Todo = ({ csrfToken }: { csrfToken: string }) => {
   const { logout } = useMutateAuth();
 
   useEffect(() => {
-    console.log("CSRF Token:", csrfToken);
 
     // CSRFトークンが存在しない場合、新しいトークンを取得
     if (!csrfToken) {
