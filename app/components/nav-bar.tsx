@@ -6,7 +6,7 @@ import { Logout } from './Logout';
 export default function NavBar() {
   const cookieStore = cookies();
   const userInfoCookie = cookieStore.get('userInfo');
-  console.log("userinfo:",userInfoCookie)
+  console.log("cookieStore:",cookieStore)
   let userName;
   if (userInfoCookie) {
     const userInfo = JSON.parse(userInfoCookie.value);
