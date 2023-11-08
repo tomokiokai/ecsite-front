@@ -1,18 +1,15 @@
 import Link from 'next/link'
 import Image from 'next/image';
-import { cookies } from 'next/headers';
+
 import { Logout } from './Logout';
 
-export default function NavBar() {
-  const cookieStore = cookies();
-  const userInfoCookie = cookieStore.get('userInfo');
-  console.log("cookieStore:",cookieStore)
-  let userName;
-  if (userInfoCookie) {
-    const userInfo = JSON.parse(userInfoCookie.value);
-    userName = userInfo.name;
-  }
-    
+
+
+// このコンポーネントはサーバーサイドで実行されます。
+export default async function NavBar({ userInfo }: any) {
+  console.log(userInfo)
+  const userName = userInfo?.name;
+  console.log(userName)
   return (
     <header className="bg-gray-800 p-4 flex items-center justify-between fixed top-0 w-full z-10 bg-opacity-50">
       <div className="flex items-center"> 
