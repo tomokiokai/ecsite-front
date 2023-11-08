@@ -8,38 +8,39 @@ export const metadata = {
 }
 
 async function getUserInfo() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/cookies`, {
-    method: 'GET',
-    credentials: 'include',
-    cache: 'no-store',
-    headers: {
-      Cookie: cookies().toString(),
-    },
-  });
-console.log(res)
-  if (!res.ok) {
-    throw new Error('Failed to fetch user info');
-  }
-
-  const cookieMap = await res.json();
-  // userInfo クッキーの値が存在するか確認する
-  const userInfoEncoded = cookieMap.userInfo;
-  if (!userInfoEncoded) {
-    // userInfo クッキーが存在しない場合は、null または適切なデフォルト値を返す
-    return null;
-  }
-  const userInfoDecoded = decodeURIComponent(userInfoEncoded);
   try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/cookies`, {
+      method: 'GET',
+      // credentials: 'include',
+      cache: 'no-store',
+      headers: {
+        Cookie: cookies().toString(),
+      },
+    });
+
+    if (!res.ok) {
+      console.error('Response not OK:', res.status);
+      return 'Failed to fetch user info'; // ここで特定の文字列を返す
+    }
+
+    const cookieMap = await res.json();
+    // userInfo クッキーの値が存在するか確認する
+    const userInfoEncoded = cookieMap.userInfo;
+    if (!userInfoEncoded) {
+      console.log('No userInfo cookie found');
+      return 'No userInfo'; // ここで特定の文字列を返す
+    }
+    const userInfoDecoded = decodeURIComponent(userInfoEncoded);
     const userInfo = JSON.parse(userInfoDecoded);
     console.log(userInfo);
     return userInfo;
   } catch (error) {
-    // JSON.parse() でエラーが発生した場合の処理
-    console.error('Failed to parse userInfo:', error);
-    // ここでエラーを処理するか、null または適切なデフォルト値を返す
-    return null;
+    // エラーが発生した場合の処理
+    console.error('Error fetching or parsing userInfo:', error);
+    return 'Error occurred'; // ここで特定の文字列を返す
   }
 }
+
 
 export default async function RootLayout({
   children,
