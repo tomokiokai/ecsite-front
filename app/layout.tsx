@@ -11,10 +11,11 @@ async function getUserInfo() {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/cookies`, {
       method: 'GET',
-      // credentials: 'include',
+      credentials: 'include',
       cache: 'no-store',
       headers: {
         Cookie: cookies().toString(),
+        'Content-Type': 'application/json',
       },
     });
 
