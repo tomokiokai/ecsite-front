@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 import { Logout } from './Logout';
 
-
+export const dynamic = 'force-dynamic'
 
 // このコンポーネントはサーバーサイドで実行されます。
 export default async function NavBar({ userInfo }: any) {
