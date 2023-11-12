@@ -1,3 +1,4 @@
+'use client'
 import Link from 'next/link'
 import Image from 'next/image';
 
@@ -6,7 +7,7 @@ import { Logout } from './Logout';
 export const dynamic = 'force-dynamic'
 
 // このコンポーネントはサーバーサイドで実行されます。
-export default async function NavBar({ userInfo }: any) {
+export default function NavBar({ userInfo }: any) {
   console.log(userInfo)
   const userName = userInfo?.name;
   console.log(userName)
