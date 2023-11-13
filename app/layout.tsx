@@ -11,18 +11,22 @@ export const metadata = {
 
 async function getUserInfo() {
   const cookieStore = cookies();
-  const userCookie = cookieStore.get('userInfo'); // 'userInfo'は取得したいCookieの名前
+  const allCookies = cookieStore.getAll(); // すべてのクッキーを取得する配列
+  console.log(allCookies);
+  // userInfoクッキーを探す
+  const userCookie = allCookies.find(cookie => cookie.name === 'userInfo');
 
   if (!userCookie) {
-    console.log('No userInfo cookie found');
+    console.log('No userInfo cookie found', allCookies);
     return 'No userInfo';
   }
 
   const userInfoDecoded = decodeURIComponent(userCookie.value);
   const userInfo = JSON.parse(userInfoDecoded);
-  console.log(userInfo);
+  console.log('User Info:', userInfo);
   return userInfo;
 }
+
 
 
 export default async function RootLayout({
