@@ -1,12 +1,18 @@
 import Link from 'next/link'
 import Image from 'next/image';
+import { cookies } from 'next/headers';
 
 import { Logout } from './Logout';
 
 export const dynamic = 'force-dynamic'
 
 // このコンポーネントはサーバーサイドで実行されます。
-export default function NavBar({ userInfo }: any) {
+export default function NavBar() {
+  const cookieStore = cookies();
+  console.log(cookieStore)
+  const userInfoString = cookieStore.get('userInfo')?.value || null;
+  const userInfo = userInfoString ? JSON.parse(decodeURIComponent(userInfoString)) : null;
+  
   console.log(userInfo)
   const userName = userInfo?.name;
   console.log(userName)

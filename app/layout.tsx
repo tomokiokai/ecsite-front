@@ -1,8 +1,5 @@
 import NavBar from './components/nav-bar';
-import { cookies } from 'next/headers';
 import './globals.css';
-
-export const dynamic = 'force-dynamic'
 
 export const metadata = {
   title: 'Nextjs App',
@@ -14,15 +11,11 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
   }) {
-  const cookieStore = cookies();
-  console.log(cookieStore)
-  const userInfoString = cookieStore.get('userInfo')?.value || null;
-  const userInfo = userInfoString ? JSON.parse(decodeURIComponent(userInfoString)) : null;
   
   return (
     <html>
       <body className="pt-16">
-        <NavBar userInfo={userInfo}/>
+        <NavBar/>
           {children}
       </body>
     </html>
