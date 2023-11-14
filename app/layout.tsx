@@ -14,24 +14,11 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
   }) {
-  async function getUserInfo() {
   const cookieStore = cookies();
-  const allCookies = cookieStore.getAll(); // すべてのクッキーを取得する配列
-  console.log(allCookies);
-  // userInfoクッキーを探す
-  const userCookie = allCookies.find(cookie => cookie.name === 'userInfo');
-
-  if (!userCookie) {
-    console.log('No userInfo cookie found', allCookies);
-    return 'No userInfo';
-  }
-
-  const userInfoDecoded = decodeURIComponent(userCookie.value);
-  const userInfo = JSON.parse(userInfoDecoded);
-  console.log('User Info:', userInfo);
-  return userInfo;
-}
-  const userInfo = await getUserInfo();
+  console.log(cookieStore)
+  const userInfoString = cookieStore.get('userInfo')?.value || null;
+  const userInfo = userInfoString ? JSON.parse(decodeURIComponent(userInfoString)) : null;
+  
   return (
     <html>
       <body className="pt-16">
