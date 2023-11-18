@@ -6,45 +6,12 @@ import { Logout } from './Logout';
 
 export const dynamic = 'force-dynamic'
 
-
-
 // このコンポーネントはサーバーサイドで実行されます。
-export default async function NavBar() {
-  async function getUserInfo() {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/cookies`, {
-      method: 'GET',
-      credentials: 'include',
-      cache: 'no-store',
-      headers: {
-        Cookie: cookies().toString(),
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!res.ok) {
-      console.error('Response not OK:', res.status);
-      return 'Failed to fetch user info'; // ここで特定の文字列を返す
-    }
-
-    const cookieMap = await res.json();
-    // userInfo クッキーの値が存在するか確認する
-    const userInfoEncoded = cookieMap.userInfo;
-    if (!userInfoEncoded) {
-      console.log('No userInfo cookie found');
-      return 'No userInfo'; // ここで特定の文字列を返す
-    }
-    const userInfoDecoded = decodeURIComponent(userInfoEncoded);
-    const userInfo = JSON.parse(userInfoDecoded);
-    console.log(userInfo);
-    return userInfo;
-  } catch (error) {
-    // エラーが発生した場合の処理
-    console.error('Error fetching or parsing userInfo:', error);
-    return 'Error occurred'; // ここで特定の文字列を返す
-  }
-}
-  const userInfo = await getUserInfo();
+export default function NavBar() {
+  const cookieStore = cookies();
+  console.log(cookieStore)
+  const userInfoString = cookieStore.get('userInfo')?.value || null;
+  const userInfo = userInfoString ? JSON.parse(decodeURIComponent(userInfoString)) : null;
   
   console.log(userInfo)
   const userName = userInfo?.name;
