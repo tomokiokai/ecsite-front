@@ -22,6 +22,8 @@ type State = {
   setCsrfToken: (token: string) => void;
   jwtToken: string | null; // 新しいプロパティ
   setJwtToken: (token: string) => void; // 新しいメソッド
+  isLoggedIn: boolean;
+  setIsLoggedIn: (status: boolean) => void;
 }
 
 const useStore = create<State>((set) => ({
@@ -41,6 +43,8 @@ const useStore = create<State>((set) => ({
   setCsrfToken: (token) => set({ csrfToken: token }),
   jwtToken: null, // 新しい初期状態
   setJwtToken: (token) => set({ jwtToken: token }), // 新しいメソッド
+  isLoggedIn: false,
+  setIsLoggedIn: (status) => set({ isLoggedIn: status }),
 }))
 
 export default useStore;

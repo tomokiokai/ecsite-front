@@ -10,12 +10,14 @@ export const useMutateAuth = () => {
   const currentPath = usePathname();
   const resetEditedTask = useStore((state) => state.resetEditedTask);
   const { switchErrorHandling } = useError();
+  const { setIsLoggedIn } = useStore();
 
   const login = async (user: Credential) => {
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/login`, user, {
       withCredentials: true
-    });
+      });
+      setIsLoggedIn(true); 
       router.push('/todo');
       router.refresh();
     } catch (err: any) {
@@ -44,6 +46,7 @@ export const useMutateAuth = () => {
     await axios.post(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/logout`);
     resetEditedTask();
     document.cookie = "authToken=; Max-Age=0; path=/;";
+    setIsLoggedIn(false);
     router.push('/'); // 最終的にルートページにリダイレクト
     router.refresh();
   } catch (err: any) {

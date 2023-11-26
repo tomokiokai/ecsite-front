@@ -1,21 +1,29 @@
+"use client"
+import React, { useEffect, useState } from 'react';
+import useStore from '../../store';
 import Link from 'next/link'
 import Image from 'next/image';
-import { cookies } from 'next/headers';
-
+import axios from 'axios';
 import { Logout } from './Logout';
 
-export const dynamic = 'force-dynamic'
-
-// このコンポーネントはサーバーサイドで実行されます。
 export default function NavBar() {
-  const cookieStore = cookies();
-  console.log(cookieStore)
-  const userInfoString = cookieStore.get('userInfo')?.value || null;
-  const userInfo = userInfoString ? JSON.parse(decodeURIComponent(userInfoString)) : null;
-  
-  console.log(userInfo)
-  const userName = userInfo?.name;
-  console.log(userName)
+  const [userName, setUserName] = useState(null);
+  const { isLoggedIn } = useStore();
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      axios.get('/api/userInfo', { withCredentials: true })
+        .then(response => {
+          const data = response.data;
+          const userInfo = data.userInfo ? JSON.parse(decodeURIComponent(data.userInfo)) : null;
+          setUserName(userInfo?.name); // パースしたオブジェクトからユーザー名を状態として設定
+        });
+    } else {
+      setUserName(null); // ログアウト時にユーザー名をリセット
+    }
+  }, [isLoggedIn]); // isLoggedIn が変わるたびに useEffect を実行
+
+  console.log("Current userName:", userName);
   return (
     <header className="bg-gray-800 p-4 flex items-center justify-between fixed top-0 w-full z-10 bg-opacity-50">
       <div className="flex items-center"> 
