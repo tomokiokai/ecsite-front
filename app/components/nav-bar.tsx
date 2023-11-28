@@ -8,22 +8,37 @@ import { Logout } from './Logout';
 
 export default function NavBar() {
   const [userName, setUserName] = useState(null);
+  const [csrfToken, setCsrfToken] = useState(''); // CSRFトークンのステートを追加
   const { isLoggedIn } = useStore();
 
   useEffect(() => {
-    if (isLoggedIn) {
-      axios.get('/api/userInfo', { withCredentials: true })
+    if (!csrfToken) {
+      // CSRFトークンを取得
+      axios.get(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/csrf`, { withCredentials: true })
         .then(response => {
-          const data = response.data;
-          const userInfo = data.userInfo ? JSON.parse(decodeURIComponent(data.userInfo)) : null;
-          setUserName(userInfo?.name); // パースしたオブジェクトからユーザー名を状態として設定
+          setCsrfToken(response.data.csrf_token); // ステートにセット
+        })
+        .catch(error => {
+          console.error('CSRF token fetch error:', error);
+        });
+    }
+
+    if (isLoggedIn && csrfToken) {
+      axios.defaults.headers.common['X-CSRF-Token'] = csrfToken;
+      axios.get(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/user`, { withCredentials: true })
+        .then(response => {
+          // ユーザー情報を取得してステートにセット
+          const userInfo = response.data;
+          setUserName(userInfo.name);
+        })
+        .catch(error => {
+          console.error('User information fetch error:', error);
         });
     } else {
-      setUserName(null); // ログアウト時にユーザー名をリセット
+      setUserName(null);
     }
-  }, [isLoggedIn]); // isLoggedIn が変わるたびに useEffect を実行
+  }, [isLoggedIn, csrfToken]); // 依存配列にcsrfTokenを追加
 
-  console.log("Current userName:", userName);
   return (
     <header className="bg-gray-800 p-4 flex items-center justify-between fixed top-0 w-full z-10 bg-opacity-50">
       <div className="flex items-center"> 
