@@ -11,7 +11,7 @@ export default function EditBlogPage() {
   const jwtToken = useStore(state => state.jwtToken);
   const csrfToken = useStore(state => state.csrfToken);
   const params = useParams();
-  const blogId = params.blogId;
+  const blogId = params?.blogId;
 
   const [blog, setBlog] = useState<Blog | null>(null);
   const [title, setTitle] = useState('');

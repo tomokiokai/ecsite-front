@@ -28,7 +28,7 @@ export default function ReservePage({ token, csrfToken, reservations }: ReserveP
   const [numberOfPeople, setNumberOfPeople] = useState(0);
 
   useEffect(() => {
-    const shopIdValue = searchParams.get('shopId');
+    const shopIdValue = searchParams?.get('shopId');
     if (shopIdValue) {
       setShopId(shopIdValue);
     }
