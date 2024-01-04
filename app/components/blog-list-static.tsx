@@ -43,11 +43,11 @@ export default async function BlogListStatic() {
   const cookieStore = cookies();
   const jwtToken = cookieStore.get('token');  // 'token'という名前のCookieを取得
 
-  // JWTトークンが存在しない場合、/auth にリダイレクト
-  if (!jwtToken) {
-    redirect('/auth'); // ここでリダイレクトを実行
-    return null; // リダイレクト後、何もレンダリングしない
-  }
+  // // JWTトークンが存在しない場合、/auth にリダイレクト
+  // if (!jwtToken) {
+  //   redirect('/auth'); // ここでリダイレクトを実行
+  //   return null; // リダイレクト後、何もレンダリングしない
+  // }
   const blogs = await fetchBlogs();
   return (
     <div className="p-4 ">
