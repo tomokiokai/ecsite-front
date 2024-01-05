@@ -3,20 +3,29 @@ import { Blog } from '../../types';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-async function fetchBlogs(): Promise<Blog[]> {
+
+
+export const getSpecificCookies = (): { token: string | null, csrfToken: string | null } => {
+  const cookieStore = cookies();
+  const allCookies = cookieStore.getAll();
+
+  // 特定のクッキーの値を取得
+  const token = allCookies.find(cookie => cookie.name === 'token')?.value || null;
+  const csrfToken = allCookies.find(cookie => cookie.name === '_csrf')?.value || null;
+
+  return { token, csrfToken };
+};
+
+async function fetchBlogs(token: string | null, csrfToken: string | null): Promise<Blog[]> {
   try {
-    const cookieStore = cookies();
-    const jwtToken = cookieStore.get('token');  // 'token'という名前のCookieを取得
-    const csrfToken = cookieStore.get('_csrf');  // '_csrf'という名前のCookieを取得
-    console.log("jwtToken:", jwtToken)
-    console.log("csrfToken:", csrfToken)
+    
     if (!csrfToken) {
       throw new Error("CSRF token is missing");
     }
 
     const headers = {
-      ...jwtToken ? { Authorization: `${jwtToken.value}` } : {},
-      'X-CSRF-Token': csrfToken.value  // Cookieから取得したCSRFトークンをヘッダーに設定
+      ...token  ? { Authorization: `${token}` } : {},
+      'X-CSRF-Token': csrfToken // Cookieから取得したCSRFトークンをヘッダーに設定
     };
     console.log("headers:", headers)
     const response = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/blogs`, {
@@ -40,15 +49,16 @@ async function fetchBlogs(): Promise<Blog[]> {
 }
 
 export default async function BlogListStatic() {
-  const cookieStore = cookies();
-  const jwtToken = cookieStore.get('token');  // 'token'という名前のCookieを取得
+  const { token, csrfToken } = getSpecificCookies();
+  // console.log("JWT Token:", token);
+  // console.log("CSRF Token:", csrfToken);
 
-  // // JWTトークンが存在しない場合、/auth にリダイレクト
-  // if (!jwtToken) {
-  //   redirect('/auth'); // ここでリダイレクトを実行
-  //   return null; // リダイレクト後、何もレンダリングしない
-  // }
-  const blogs = await fetchBlogs();
+  // JWTトークンが存在しない場合、/auth にリダイレクト
+  if (!token) {
+    redirect('/auth'); // ここでリダイレクトを実行
+    return null; // リダイレクト後、何もレンダリングしない
+  }
+  const blogs = await fetchBlogs(token, csrfToken);
   return (
     <div className="p-4 ">
       <p className="mb-4 pb-3 text-xl font-medium underline underline-offset-4">
