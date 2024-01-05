@@ -3,42 +3,29 @@ import { Blog } from '../../types';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-
-
-export const getSpecificCookies = (): { token: string | null, csrfToken: string | null } => {
-  const cookieStore = cookies();
-  const allCookies = cookieStore.getAll();
-  console.log("allCookies:", allCookies);
-  // 特定のクッキーの値を取得
-  const token = allCookies.find(cookie => cookie.name === 'token')?.value || null;
-  const csrfToken = allCookies.find(cookie => cookie.name === '_csrf')?.value || null;
-
-  return { token, csrfToken };
-};
-
 async function fetchBlogs(): Promise<Blog[]> {
   try {
-    const { token, csrfToken } = getSpecificCookies();
-  console.log("JWT Token:", token);
-    console.log("CSRF Token:", csrfToken);
-    const options: RequestInit = {
-      headers: {
-      ...token  ? { Authorization: `${token}` } : {},
-      ...csrfToken ? { 'X-CSRF-Token': csrfToken } : {}
-    },
-    cache: "no-store",
-  };
-    
+    const cookieStore = cookies();
+    const jwtToken = cookieStore.get('token');  // 'token'という名前のCookieを取得
+    const csrfToken = cookieStore.get('_csrf');  // '_csrf'という名前のCookieを取得
+    console.log("jwtToken:", jwtToken)
+    console.log("csrfToken:", csrfToken)
     if (!csrfToken) {
       throw new Error("CSRF token is missing");
     }
 
-    // const headers = {
-    //   ...token  ? { Authorization: `${token}` } : {},
-    //   'X-CSRF-Token': csrfToken // Cookieから取得したCSRFトークンをヘッダーに設定
-    // };
-    
-    const response = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/blogs`, options,);
+    const headers = {
+      ...jwtToken ? { Authorization: `${jwtToken.value}` } : {},
+      'X-CSRF-Token': csrfToken.value  // Cookieから取得したCSRFトークンをヘッダーに設定
+    };
+    console.log("headers:", headers)
+    const response = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/blogs`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: headers,
+      next: { revalidate: 0 }
+      // cache: 'force-cache'
+    });
 
     if (!response.ok) {
       throw new Error('Failed to fetch data in server');
@@ -53,10 +40,11 @@ async function fetchBlogs(): Promise<Blog[]> {
 }
 
 export default async function BlogListStatic() {
-  
+  const cookieStore = cookies();
+  const jwtToken = cookieStore.get('token');  // 'token'という名前のCookieを取得
 
-  // JWTトークンが存在しない場合、/auth にリダイレクト
-  // if (!token) {
+  // // JWTトークンが存在しない場合、/auth にリダイレクト
+  // if (!jwtToken) {
   //   redirect('/auth'); // ここでリダイレクトを実行
   //   return null; // リダイレクト後、何もレンダリングしない
   // }
