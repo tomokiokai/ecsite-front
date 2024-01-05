@@ -50,8 +50,8 @@ async function fetchBlogs(token: string | null, csrfToken: string | null): Promi
 
 export default async function BlogListStatic() {
   const { token, csrfToken } = getSpecificCookies();
-  // console.log("JWT Token:", token);
-  // console.log("CSRF Token:", csrfToken);
+  console.log("JWT Token:", token);
+  console.log("CSRF Token:", csrfToken);
 
   // JWTトークンが存在しない場合、/auth にリダイレクト
   if (!token) {
