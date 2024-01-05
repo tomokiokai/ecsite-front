@@ -16,25 +16,29 @@ export const getSpecificCookies = (): { token: string | null, csrfToken: string 
   return { token, csrfToken };
 };
 
-async function fetchBlogs(token: string | null, csrfToken: string | null): Promise<Blog[]> {
+async function fetchBlogs(): Promise<Blog[]> {
   try {
+    const { token, csrfToken } = getSpecificCookies();
+  console.log("JWT Token:", token);
+    console.log("CSRF Token:", csrfToken);
+    const options: RequestInit = {
+      headers: {
+      ...token  ? { Authorization: `${token}` } : {},
+      ...csrfToken ? { 'X-CSRF-Token': csrfToken } : {}
+    },
+    cache: "no-store",
+  };
     
     if (!csrfToken) {
       throw new Error("CSRF token is missing");
     }
 
-    const headers = {
-      ...token  ? { Authorization: `${token}` } : {},
-      'X-CSRF-Token': csrfToken // Cookieから取得したCSRFトークンをヘッダーに設定
-    };
-    console.log("headers:", headers)
-    const response = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/blogs`, {
-      method: 'GET',
-      credentials: 'include',
-      headers: headers,
-      next: { revalidate: 0 }
-      // cache: 'force-cache'
-    });
+    // const headers = {
+    //   ...token  ? { Authorization: `${token}` } : {},
+    //   'X-CSRF-Token': csrfToken // Cookieから取得したCSRFトークンをヘッダーに設定
+    // };
+    
+    const response = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/blogs`, options,);
 
     if (!response.ok) {
       throw new Error('Failed to fetch data in server');
@@ -49,16 +53,14 @@ async function fetchBlogs(token: string | null, csrfToken: string | null): Promi
 }
 
 export default async function BlogListStatic() {
-  const { token, csrfToken } = getSpecificCookies();
-  console.log("JWT Token:", token);
-  console.log("CSRF Token:", csrfToken);
+  
 
   // JWTトークンが存在しない場合、/auth にリダイレクト
-  if (!token) {
-    redirect('/auth'); // ここでリダイレクトを実行
-    return null; // リダイレクト後、何もレンダリングしない
-  }
-  const blogs = await fetchBlogs(token, csrfToken);
+  // if (!token) {
+  //   redirect('/auth'); // ここでリダイレクトを実行
+  //   return null; // リダイレクト後、何もレンダリングしない
+  // }
+  const blogs = await fetchBlogs();
   return (
     <div className="p-4 ">
       <p className="mb-4 pb-3 text-xl font-medium underline underline-offset-4">

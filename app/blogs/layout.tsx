@@ -1,7 +1,7 @@
 import '../globals.css';
 import BlogListStatic from '../components/blog-list-static'
 import CreateBtn from '../components/create-btn'
-
+export const dynamic = 'force-dynamic'
 export default function BlogLayout({
   children,
 }: {
