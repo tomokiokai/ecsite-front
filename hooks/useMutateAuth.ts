@@ -17,6 +17,9 @@ export const useMutateAuth = () => {
       await axios.post(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/login`, user, {
       withCredentials: true
       });
+      await axios.get(`${process.env.NEXT_PUBLIC_FE_URL}/api/token`, {
+      withCredentials: true
+      });
       setIsLoggedIn(true); 
       router.push('/todo');
       router.refresh();
