@@ -4,7 +4,28 @@ import { Blog } from '../../types';
 import { getSpecificCookies } from "@/utils/getCookie";
 import { redirect } from 'next/navigation';
 
+const fetchCookies = async () => {
+      try {
+        // バックエンドのAPIエンドポイントにリクエストを送信
+        const response = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/cookies`,{
+    method: 'GET',
+    cache: "no-store",
+  });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch cookies');
+        }
 
+        // レスポンスからクッキー情報を取得
+        const cookiesData = await response.json();
+        console.log('Cookies:', cookiesData);
+      } catch (error) {
+        console.error('Error fetching cookies:', error);
+      }
+    };
+
+    fetchCookies();
+  
 
 // export const getSpecificCookies = (): { token: string | null, csrfToken: string | null } => {
 //   const requestHeaders = headers();
