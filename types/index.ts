@@ -36,3 +36,45 @@ export type Shop = {
   // onClick: (id: number) => void;
 };
 
+export interface CustomUser {
+  id: string; // または必要に応じて他の識別子
+  name: string;
+  email: string;
+  jwtToken: string; // カスタムプロパティ
+  // その他必要に応じて追加するプロパティ
+}
+
+import "next-auth";
+import "next-auth/jwt";
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id?: string | number; // 'id' プロパティをオプショナルとして追加
+  }
+}
+
+declare module "next-auth" {
+  /**
+   * ユーザー型の拡張。
+   */
+  interface User {
+    id: string | number;
+    jwt: string;
+  }
+
+  /**
+   * セッション型の拡張。
+   */
+  interface Session {
+    user: User;
+    jwt: JWT;
+  }
+
+  /**
+   * JWTトークン型の拡張。
+   */
+  interface JWT {
+    jwt?: string;
+    id?: string | number;
+  }
+}

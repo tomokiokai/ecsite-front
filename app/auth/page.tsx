@@ -1,13 +1,29 @@
+"use client";
+import { useSession, SessionProvider } from "next-auth/react";
 import { Auth } from '../components/Auth';
-import { cookies } from 'next/headers';
 
 export default function Home() {
-  const cookieStore = cookies();
-  const jwtToken = cookieStore.get('token');  // 'token'という名前のCookieを取得
-  
   return (
-        <main>
-          <Auth token={jwtToken?.value || ""}/>
-        </main>
+    <SessionProvider>
+      <MainComponent />
+    </SessionProvider>
+  );
+}
+
+function MainComponent() {
+  const { data: session, status } = useSession();
+  const loading = status === "loading";
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  const jwtToken = typeof session?.jwt === 'string' ? session.jwt : "";
+
+
+  return (
+    <main>
+      <Auth token={jwtToken} />
+    </main>
   );
 }

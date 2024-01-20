@@ -26,22 +26,22 @@ export const Auth = ({ token }: { token: string }) => {
     }
   };
 
-  useEffect(() => {
-    console.log(token);
-    if (token) {
-      redirect('/');
-    }
+  // useEffect(() => {
+  //   console.log(token);
+  //   if (token) {
+  //     redirect('/');
+  //   }
 
-    axios.defaults.withCredentials = true;
-    const getCsrfToken = async () => {
-      const { data } = await axios.get<CsrfToken>(
-        `${process.env.NEXT_PUBLIC_RESTAPI_URL}/csrf`
-      );
-      axios.defaults.headers.common['X-CSRF-Token'] = data.csrf_token;
-      setCsrfToken(data.csrf_token);
-    };
-    getCsrfToken();
-  }, [token]);
+  //   axios.defaults.withCredentials = true;
+  //   const getCsrfToken = async () => {
+  //     const { data } = await axios.get<CsrfToken>(
+  //       `${process.env.NEXT_PUBLIC_RESTAPI_URL}/csrf`
+  //     );
+  //     axios.defaults.headers.common['X-CSRF-Token'] = data.csrf_token;
+  //     setCsrfToken(data.csrf_token);
+  //   };
+  //   getCsrfToken();
+  // }, [token]);
 
   return (
     <div className="flex justify-center items-center flex-col min-h-screen text-gray-600 font-mono">

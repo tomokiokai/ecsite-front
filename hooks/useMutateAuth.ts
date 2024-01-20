@@ -1,14 +1,13 @@
-"use client"
+"use client";
+import { signIn, signOut } from "next-auth/react";
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { useRouter, usePathname } from 'next/navigation';
 import useStore from '../store';
 import { Credential } from '../types';
 import { useError } from '../hooks/useError';
 
 export const useMutateAuth = () => {
   const router = useRouter();
-  const currentPath = usePathname();
-  const resetEditedTask = useStore((state) => state.resetEditedTask);
   const { switchErrorHandling } = useError();
   const { setIsLoggedIn } = useStore();
 
@@ -17,18 +16,23 @@ export const useMutateAuth = () => {
       await axios.post(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/login`, user, {
       withCredentials: true
       });
-      // await axios.get(`${process.env.NEXT_PUBLIC_FE_URL}/api/token`, {
-      // withCredentials: true
-      // });
       setIsLoggedIn(true); 
-      router.push('/todo');
-      router.refresh();
-    } catch (err: any) {
-      if (err.response?.data?.message) {
-        switchErrorHandling(err.response.data.message);
+
+      const result = await signIn('credentials', {
+        redirect: false,
+        email : user.email ,
+        password: user.password,
+      });
+
+      if (result && !result.error) {
+        setIsLoggedIn(true);
+        router.push('/todo');
+        router.refresh();
       } else {
-        switchErrorHandling(err.response.data);
+        switchErrorHandling(result && result.error ? result.error : 'ログインに失敗しました。');
       }
+    } catch (err) {
+      switchErrorHandling('ログインエラーが発生しました。');
     }
   };
 
@@ -45,21 +49,14 @@ export const useMutateAuth = () => {
   };
 
   const logout = async () => {
-  try {
-    await axios.post(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/logout`);
-    resetEditedTask();
-    document.cookie = "authToken=; Max-Age=0; path=/;";
-    setIsLoggedIn(false);
-    router.push('/'); // 最終的にルートページにリダイレクト
-    router.refresh();
-  } catch (err: any) {
-    if (err.response?.data?.message) {
-      switchErrorHandling(err.response.data.message);
-    } else {
-      switchErrorHandling(err.response.data);
+    try {
+      await signOut({ redirect: false });
+      setIsLoggedIn(false);
+      router.push('/'); // ルートページへのリダイレクト
+    } catch (err) {
+      switchErrorHandling('ログアウトエラーが発生しました。');
     }
-  }
-};
+  };
 
   return { login, register, logout };
 };
