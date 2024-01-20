@@ -8,14 +8,15 @@ import useStore from '../../store';
 
 
 export default function NewBlog() {
-  const [title, setTitle] = useState('');
+    const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true); // 追加
   const router = useRouter();
   const { createBlog } = useMutateBlog();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession(); // statusも追加
   const isSessionLoading = status === "loading";
   const csrfToken = useStore((state) => state.csrfToken);
-  const jwtToken = typeof session?.jwt === 'string' ? session.jwt : "";
+  
   
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -42,14 +43,13 @@ export default function NewBlog() {
 
   useEffect(() => {
     if (!isSessionLoading) {
-      const jwtTokenString = typeof session?.jwt === 'string' ? session.jwt : "";
+      const jwtToken = typeof session?.jwt === 'string' ? session.jwt : "";
+      setIsButtonDisabled(!jwtToken); // JWT トークンがない場合、ボタンを無効化
       axios.defaults.withCredentials = true;
       axios.defaults.headers.common['Authorization'] = jwtToken;
       axios.defaults.headers.common['X-CSRF-Token'] = csrfToken;
     }
-    console.log('Axios Default Headers:', axios.defaults.headers.common);
   }, [isSessionLoading, session?.jwt, csrfToken]);
-
 
   return (
     <div className="p-8 bg-gray-100 w-full max-w-3xl mx-auto">
@@ -76,7 +76,11 @@ export default function NewBlog() {
           ></textarea>
         </div>
         <div className="flex justify-center">
-          <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+          <button
+            type="submit"
+            className={`bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${isButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={isButtonDisabled}
+          >
             Post
           </button>
         </div>

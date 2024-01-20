@@ -28,7 +28,7 @@ export const authOptions: NextAuthOptions = {
           });
           
           const data = loginResponse.data;
-          console.log('loginResponseData:',data)
+          // console.log('loginResponseData:',data)
           if (data && data.jwt) {
             return { jwt: data.jwt, id: data.user.id, name: data.user.name, email: data.user.email };
           }

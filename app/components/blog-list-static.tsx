@@ -6,7 +6,6 @@ import { authOptions } from "@/lib/auth"
 
 // JWTトークンを使用してブログデータをフェッチする関数
 async function fetchBlogs(jwt: string): Promise<Blog[]> {
-  console.log('jwt:',jwt)
   try {
     const headers = {
       Authorization: jwt,  // JWTトークンをヘッダーに設定
@@ -33,7 +32,6 @@ async function fetchBlogs(jwt: string): Promise<Blog[]> {
 // サーバーコンポーネント
 export default async function BlogListStatic() {
   const session = await getServerSession(authOptions);
-console.log('session1111:',session)
   // JWTトークンが存在しない場合、/auth にリダイレクト
   if (!session?.jwt) {
     redirect('/auth');
