@@ -10,6 +10,7 @@ export const useMutateAuth = () => {
   const router = useRouter();
   const { switchErrorHandling } = useError();
   const { setIsLoggedIn } = useStore();
+  const resetEditedTask = useStore((state) => state.resetEditedTask);
 
   const login = async (user: Credential) => {
     try {
@@ -50,9 +51,13 @@ export const useMutateAuth = () => {
 
   const logout = async () => {
     try {
+      await axios.post(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/logout`);
+      resetEditedTask();
+      document.cookie = "authToken=; Max-Age=0; path=/;";
       await signOut({ redirect: false });
       setIsLoggedIn(false);
       router.push('/'); // ルートページへのリダイレクト
+      router.refresh();
     } catch (err) {
       switchErrorHandling('ログアウトエラーが発生しました。');
     }

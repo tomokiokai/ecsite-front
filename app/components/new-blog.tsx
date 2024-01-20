@@ -3,17 +3,20 @@ import { FormEvent, useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { useMutateBlog } from '../../hooks/useMutateBlog';
+import { useSession } from "next-auth/react";
+import useStore from '../../store';
 
-type NewBlogProps = {
-  token: string;
-  csrfToken: string;
-};
 
-export default function NewBlog({ token, csrfToken }: NewBlogProps) {
+export default function NewBlog() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const router = useRouter();
   const { createBlog } = useMutateBlog();
+  const { data: session } = useSession();
+  const isSessionLoading = status === "loading";
+  const csrfToken = useStore((state) => state.csrfToken);
+  const jwtToken = typeof session?.jwt === 'string' ? session.jwt : "";
+  
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,10 +41,15 @@ export default function NewBlog({ token, csrfToken }: NewBlogProps) {
   };
 
   useEffect(() => {
-    axios.defaults.withCredentials = true;
-    axios.defaults.headers.common['Authorization'] = token;
-    axios.defaults.headers.common['X-CSRF-Token'] = csrfToken;
-  }, []);
+    if (!isSessionLoading) {
+      const jwtTokenString = typeof session?.jwt === 'string' ? session.jwt : "";
+      axios.defaults.withCredentials = true;
+      axios.defaults.headers.common['Authorization'] = jwtToken;
+      axios.defaults.headers.common['X-CSRF-Token'] = csrfToken;
+    }
+    console.log('Axios Default Headers:', axios.defaults.headers.common);
+  }, [isSessionLoading, session?.jwt, csrfToken]);
+
 
   return (
     <div className="p-8 bg-gray-100 w-full max-w-3xl mx-auto">
