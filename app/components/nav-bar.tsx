@@ -7,9 +7,7 @@ import axios from 'axios';
 import { Logout } from './Logout';
 
 export default function NavBar() {
-  const [userName, setUserName] = useState(null);
-  const [csrfToken, setCsrfToken] = useState(''); // CSRFトークンのステートを追加
-  const { isLoggedIn } = useStore();
+  const { user, isLoggedIn, csrfToken, setCsrfToken } = useStore();
 
   useEffect(() => {
     if (!csrfToken) {
@@ -23,20 +21,7 @@ export default function NavBar() {
         });
     }
 
-    if (isLoggedIn && csrfToken) {
-      axios.defaults.headers.common['X-CSRF-Token'] = csrfToken;
-      axios.get(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/user`, { withCredentials: true })
-        .then(response => {
-          // ユーザー情報を取得してステートにセット
-          const userInfo = response.data;
-          setUserName(userInfo.name);
-        })
-        .catch(error => {
-          console.error('User information fetch error:', error);
-        });
-    } else {
-      setUserName(null);
-    }
+    
   }, [isLoggedIn, csrfToken]); // 依存配列にcsrfTokenを追加
 
   return (
@@ -86,11 +71,11 @@ export default function NavBar() {
         </nav>
       </div>
       <div> 
-        {userName ? (
+        {isLoggedIn ? (
           <div className="flex items-center text-center"> {/* このdivは水平方向のflexコンテナとして機能します */}
           <div className="flex flex-col items-center pr-3"> {/* このdivは垂直方向のflexコンテナとして機能し、テキストを縦に並べます */}
             <span className="text-white">Welcome back!</span> {/* メッセージ行 */}
-            <span className="text-white">{userName}</span> {/* ユーザー名行 */}
+            <span className="text-white">{user?.name}</span> {/* ユーザー名行 */}
           </div>
           <Logout /> {/* ログアウトコンポーネントは外側のflexコンテナに直接配置され、ユーザー名の横に表示されます */}
         </div>

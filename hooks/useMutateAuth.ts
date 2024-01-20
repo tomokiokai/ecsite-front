@@ -56,6 +56,7 @@ export const useMutateAuth = () => {
       document.cookie = "authToken=; Max-Age=0; path=/;";
       await signOut({ redirect: false });
       setIsLoggedIn(false);
+      localStorage.removeItem('user-store');
       router.push('/'); // ルートページへのリダイレクト
       router.refresh();
     } catch (err) {

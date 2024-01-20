@@ -46,6 +46,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user?.jwt) {
         token.jwt = user.jwt; // カスタムJWTトークンをセッショントークンに追加
+        token.exp = Math.floor(Date.now() / 1000) + (24 * 60 * 60);
       }
       return token;
     },

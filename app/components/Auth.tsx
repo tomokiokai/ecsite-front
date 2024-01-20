@@ -5,6 +5,7 @@ import { CheckBadgeIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
 import { useMutateAuth } from '../../hooks/useMutateAuth';
 import { CsrfToken } from '../../types';
 import { redirect } from 'next/navigation';
+import { useSession } from "next-auth/react";
 import useStore from '../../store';
 
 export const Auth = ({ token }: { token: string }) => {
@@ -14,6 +15,14 @@ export const Auth = ({ token }: { token: string }) => {
   const [name, setName] = useState(''); // ユーザー名を管理するための新しい state 変数
   const [isLogin, setIsLogin] = useState(true);
   const { login, register } = useMutateAuth(); // login と register を取得
+  const { data: session, status } = useSession();
+  const setUser = useStore((state) => state.setUser);
+
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      setUser({ name: session.user.name || "", email: session.user.email || "" });
+    }
+  }, [status, session]);
 
   const submitAuthHandler = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
