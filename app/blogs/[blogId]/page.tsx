@@ -3,34 +3,15 @@ import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
 import { ArrowUturnLeftIcon } from '@heroicons/react/24/solid';
 import { Blog } from '../../../types';
-import { cookies } from 'next/headers';
 import DeleteButton from '../../components/DeleteButton';
 import EditButton from '../../components/EditButton';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth"
 
-type PageProps = {
-  blog: Blog;
-  params: {
-    blogId: string;
-  };
-};
-type FetchBlogResult = {
-  blog: Blog;
-  token: string | undefined;
-  csrfToken: string;
-};
-
-async function fetchBlog(blogId: string): Promise<FetchBlogResult> {
-  const cookieStore = cookies();
-  const jwtToken = cookieStore.get('token');
-  const csrfToken = cookieStore.get('_csrf');
-
-  if (!csrfToken) {
-    throw new Error("CSRF token is missing");
-  }
+async function fetchBlog(blogId: string, jwtToken: string): Promise<Blog> {
 
   const headers = {
-    ...jwtToken ? { Authorization: `${jwtToken.value}` } : {},
-    'X-CSRF-Token': csrfToken.value,
+    ...jwtToken ? { Authorization: jwtToken } : {},
     'Content-Type': 'application/json',
   };
 
@@ -42,13 +23,20 @@ async function fetchBlog(blogId: string): Promise<FetchBlogResult> {
   if (!res.ok) {
     throw new Error('Failed to fetch data');
   }
-
-  const blog = await res.json();
-  return { blog, token: jwtToken?.value, csrfToken: csrfToken.value };
+  return await res.json();
 }
 
 export default async function BlogDetailPage({ params }: { params: { blogId: string } }) {
-  const { blog, token, csrfToken } = await fetchBlog(params.blogId);
+  const session = await getServerSession(authOptions);
+  const jwtToken = session?.jwt; // JWTトークンをセッションから取得
+  
+
+  if (!jwtToken || typeof jwtToken !== 'string') {
+    // トークンがなければ、認証ページへリダイレクト
+    return notFound();
+  }
+
+  const blog = await fetchBlog(params.blogId, jwtToken);
   if (!blog) return notFound();
   return (
     <div className="mt-16 p-8">
@@ -70,9 +58,9 @@ export default async function BlogDetailPage({ params }: { params: { blogId: str
         {blog && format(new Date(blog.updated_at), 'yyyy-MM-dd HH:mm:ss')}
       </p>
 
-      <EditButton blogId={blog.id} token={token} csrfToken={csrfToken} />
+      <EditButton blogId={blog.id} token={jwtToken}  />
 
-      <DeleteButton blogId={blog.id} token={token} csrfToken={csrfToken} />
+      <DeleteButton blogId={blog.id} token={jwtToken}  />
       <Link href={`/blogs`}>
         <ArrowUturnLeftIcon className="mt-3 h-6 w-6 cursor-pointer text-blue-500" />
       </Link>

@@ -7,18 +7,16 @@ import axios from 'axios';
 type DeleteButtonProps = {
   blogId: number;
   token: string | undefined;
-  csrfToken: string;
 };
 
-export default function DeleteButton({ blogId, token, csrfToken }: DeleteButtonProps) {
+export default function DeleteButton({ blogId, token }: DeleteButtonProps) {
   const router = useRouter();
   const { deleteBlog } = useMutateBlog();
 
   useEffect(() => {
     axios.defaults.withCredentials = true;
     axios.defaults.headers.common['Authorization'] = token;
-    axios.defaults.headers.common['X-CSRF-Token'] = csrfToken;
-  }, [token, csrfToken]);
+  }, [token]);
 
   const handleDelete = async () => {
     try {

@@ -5,19 +5,13 @@ import useStore from '../../store';
 type EditButtonProps = {
   blogId: number;
   token: string | null | undefined;
-  csrfToken: string;
 };
 
-export default function EditButton({ blogId, token, csrfToken }: EditButtonProps) {
+export default function EditButton({ blogId, token }: EditButtonProps) {
   const router = useRouter();
   const setJwtToken = useStore(state => state.setJwtToken);
-  const setCsrfToken = useStore(state => state.setCsrfToken);
-
   const handleEdit = () => {
-    // tokenとcsrfTokenをzustandのストアに保存
     setJwtToken(token as string);
-    setCsrfToken(csrfToken);
-
     router.push(`/blogs/edit/${blogId}`);
   };
 
