@@ -16,6 +16,7 @@ export default function NewBlog() {
   const { data: session, status } = useSession(); // statusも追加
   const isSessionLoading = status === "loading";
   const csrfToken = useStore((state) => state.csrfToken);
+  const jwtToken = typeof session?.jwt === 'string' ? session.jwt : "";
   
   
 
@@ -43,7 +44,6 @@ export default function NewBlog() {
 
   useEffect(() => {
     if (!isSessionLoading) {
-      const jwtToken = typeof session?.jwt === 'string' ? session.jwt : "";
       setIsButtonDisabled(!jwtToken); // JWT トークンがない場合、ボタンを無効化
       axios.defaults.withCredentials = true;
       axios.defaults.headers.common['Authorization'] = jwtToken;
