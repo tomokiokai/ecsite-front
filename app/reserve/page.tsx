@@ -1,26 +1,25 @@
 import ReservePage from '../components/ReservePage';
-import { cookies } from 'next/headers';  
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth"; 
 
 export default async function Reserve() {
-  const cookieStore = cookies();
-  const jwtToken = cookieStore.get('token'); 
-  const csrfToken = cookieStore.get('_csrf'); 
+  const session = await getServerSession(authOptions); // セッションを取得
+  const jwtToken = session?.jwt || ""; // JWTトークンをセッションから取得
+  // JWTトークンがstring型であることを保証
+  const jwtTokenString = typeof jwtToken === 'string' ? jwtToken : '';
 
   const fetchReservationsData = async () => {
-    if (csrfToken) {
+    const headers = {
+      'Content-Type': 'application/json',
+      ...jwtToken ? { Authorization: jwtTokenString } : {}, // JWTトークンを文字列型としてヘッダーに設定
+    };
+    
       const res = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/reservations`, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...jwtToken ? { Authorization: `${jwtToken.value}` } : {},
-          'X-CSRF-Token': csrfToken.value
-        },
+        headers: headers,
         next: { revalidate: 0 }
       });
       const reservations = await res.json();
       return reservations;
-    } else {
-      throw new Error("CSRF token is missing. Unable to proceed.");
-    }
   };
   
   const reservations = await fetchReservationsData();
@@ -30,7 +29,7 @@ export default async function Reserve() {
       <span className="text-lg">
         Please enter the date 🚀
       </span>
-      <ReservePage token={jwtToken?.value || ""} csrfToken={csrfToken?.value || ""} reservations={reservations} />
+      <ReservePage token={jwtTokenString} reservations={reservations} />
     </div>
   );
 }

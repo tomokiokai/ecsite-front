@@ -17,11 +17,10 @@ type Reservation = {
 
 type ReservePageProps = {
   token: string;
-  csrfToken: string;
   reservations: Reservation[];
 };
 
-export default function ReservePage({ token, csrfToken, reservations }: ReservePageProps) {
+export default function ReservePage({ token, reservations }: ReservePageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [shopId, setShopId] = useState<string | null>(null);
@@ -37,7 +36,6 @@ export default function ReservePage({ token, csrfToken, reservations }: ReserveP
   useEffect(() => {
     axios.defaults.withCredentials = true;
     axios.defaults.headers.common['Authorization'] = token;
-    axios.defaults.headers.common['X-CSRF-Token'] = csrfToken;
   }, []);
 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
