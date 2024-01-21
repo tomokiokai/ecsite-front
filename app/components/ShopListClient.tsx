@@ -19,11 +19,10 @@ type Props = {
   shops: Shop[];
   initialFavorites: Set<number>;
   token: string | null;  
-  csrfToken: string | null;  
-  userInfo: string | null;
+  userInfo: { name: string; email: string; id: number; } | null;
 };
 
-export default function ShopListClient({ shops, initialFavorites, token, csrfToken, userInfo }: Props) {
+export default function ShopListClient({ shops, initialFavorites, token, userInfo }: Props) {
   
   const [favorites, setFavorites] = useState(initialFavorites);  // お気に入りの状態を管理するステート
   const router = useRouter();
@@ -31,9 +30,8 @@ export default function ShopListClient({ shops, initialFavorites, token, csrfTok
     const isFavorite = favorites.has(shopId);  // 現在のお気に入りの状態をチェック
     const newFavorites = new Set(favorites);  // 現在のお気に入りのセットをコピー
     // userInfo を JavaScript オブジェクトに変換
-    const userInfoObj = JSON.parse(userInfo || '{}');
-    const userId = userInfoObj.id;  // user_id を取得
-    console.log(favorites);
+    if (userInfo && userInfo.id) {  // userInfoとuserIdの存在を確認
+      const userId = userInfo.id;  // user_idを直接取得
     
     if (isFavorite) {
       newFavorites.delete(shopId);  // お気に入りから削除
@@ -49,8 +47,7 @@ export default function ShopListClient({ shops, initialFavorites, token, csrfTok
         method: isFavorite ? 'DELETE' : 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': token ,
-          'X-CSRF-Token': csrfToken ,
+          'Authorization': token
         },
         data: JSON.stringify({ shop_id: shopId, user_id: userId }),
         withCredentials: true, 
@@ -60,6 +57,10 @@ export default function ShopListClient({ shops, initialFavorites, token, csrfTok
     } catch (error) {
       // エラーハンドリング
       console.error('Failed to toggle favorite', error);
+    }
+    } else {
+      // userInfoがnullの場合、エラーハンドリングが必要です。
+      console.error('User information is not available');
     }
   };
 

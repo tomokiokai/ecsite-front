@@ -58,7 +58,7 @@ declare module "next-auth" {
    * ユーザー型の拡張。
    */
   interface User {
-    id: string | number;
+    id?: string | number;
     jwt: string;
   }
 

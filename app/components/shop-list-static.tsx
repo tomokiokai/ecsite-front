@@ -1,6 +1,8 @@
 import React from 'react';
 import ShopListClient from './ShopListClient';
-import { cookies } from 'next/headers';  // cookies関数をインポート
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth"
+import { Session } from "next-auth";
 
 type Shop = {
   id: number;
@@ -30,11 +32,7 @@ function getRandomImageUrl() {
 }
 
 export default async function ShopListStatic() {
-  const cookieStore = cookies();  // Cookieストアを取得
-  const jwtToken = cookieStore.get('token')?.value || null;
-  const csrfToken = cookieStore.get('_csrf')?.value || null;
-  const userInfo = cookieStore.get('userInfo')?.value || null;
-
+  const session = await getServerSession(authOptions);
   async function fetchShops(): Promise<Shop[]> {
     try {
       
@@ -60,7 +58,7 @@ export default async function ShopListStatic() {
   }
 
   // お気に入りの情報を取得する新しい関数
-  async function fetchFavorites(): Promise<Set<number>> {
+  async function fetchFavorites(session: Session | null): Promise<Set<number>> {
     const response = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/build/favorites`, {
       method: 'GET',
       headers: {
@@ -75,9 +73,7 @@ export default async function ShopListStatic() {
     }
 
     const favoriteData = await response.json();
-    const userInfoObj = JSON.parse(userInfo || '{}');
-    const userId = userInfoObj.id;
-
+    const userId = session?.user.id || null;  // セッションからユーザーIDを取得
     const userFavorites = favoriteData.filter((fav: FavoriteItem) => fav.user.id === userId);
     const favoriteIds = new Set<number>();
     for (const item of userFavorites) {
@@ -87,7 +83,7 @@ export default async function ShopListStatic() {
   }
 
   const shops = await fetchShops();
-  const favorites = await fetchFavorites();
+  const favorites = await fetchFavorites(session);
 
   // 各ショップに対してランダムな画像URLを生成
   const shopsWithRandomImage = shops.map(shop => ({
@@ -95,8 +91,28 @@ export default async function ShopListStatic() {
     imageUrl: getRandomImageUrl(),
   }));
 
+  // セッション情報から必要なデータを取り出し
+  const jwtToken = session?.jwt || null;
+  const userInfo = session?.user || null;
+
+  // jwtToken が string 型かどうかを確認
+  const tokenForClient = typeof jwtToken === 'string' ? jwtToken : null;
+
+  // userInfo が null でないことを確認し、必要に応じて処理を行う
+  const userInfoForClient = userInfo ? {
+  name: userInfo.name || '',
+  email: userInfo.email || '', 
+  id: typeof userInfo.id === 'number' ? userInfo.id : 0,
+} : null;
+
+
   return (
-    <ShopListClient shops={shopsWithRandomImage} initialFavorites={favorites} token={jwtToken} csrfToken={csrfToken} userInfo={userInfo}/>
+    <ShopListClient
+      shops={shopsWithRandomImage}
+      initialFavorites={favorites}
+      token={tokenForClient}
+      userInfo={userInfoForClient}
+    />
   );
 };
 
