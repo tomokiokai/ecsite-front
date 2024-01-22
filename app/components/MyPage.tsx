@@ -1,6 +1,7 @@
 import React from 'react';
 import MyPageContent from './MyPageContent'; 
-import { cookies } from 'next/headers';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { redirect } from 'next/navigation';
 
 type Shop = {
@@ -42,32 +43,27 @@ function getRandomImageUrl() {
 }
 
 export default async function MyPage() {
-  const cookieStore = cookies();
-  const jwtToken = cookieStore.get('token')?.value || null;
-  const csrfToken = cookieStore.get('_csrf')?.value || null;
-  const userInfo = cookieStore.get('userInfo')?.value || '{}';
+  const session = await getServerSession(authOptions); // セッションを取得
+  const jwtToken = session?.jwt || null;
+  const userInfo = session?.user ? JSON.stringify(session.user) : null;
+  const userId = session?.user?.id || null;
+  const jwtTokenAsString = jwtToken ? jwtToken.toString() : "";
+
+  const userIdAsString = userId != null ? userId.toString() : "";
 
   if (!jwtToken) {
     return redirect('/auth'); // ここでリダイレクトを実行
   }
 
   // ショップ、お気に入り、予約のデータを取得
-  const shops = await fetchShops(jwtToken, csrfToken);
-  const favorites = await fetchFavorites(userInfo); // ここでの引数は不要になりました
-  const reservations = await fetchReservations(jwtToken, csrfToken);
-  
-
-  // ユーザー情報の解析
-  const userInfoObj = JSON.parse(userInfo || '{}');
-  const currentUserId = userInfoObj.id; // ユーザーIDを解析します。
+  const shops = await fetchShops(jwtTokenAsString);
+  const favorites = await fetchFavorites(userIdAsString); // ここでの引数は不要になりました
+  const reservations = await fetchReservations(jwtTokenAsString);
 
   // お気に入りと予約に基づいてショップをフィルタリング
   const favoriteShops = shops.filter(shop => favorites.has(shop.id));
-
-  // ユーザーの予約に基づいてショップをフィルタリング
-  const userReservations = reservations.filter(res => res.user_id === currentUserId);
+  const reservedShopIds = new Set(reservations.map(res => res.shop_id));
   
-  const reservedShopIds = new Set(userReservations.map(res => res.shop_id));
   
 // reservedShopIdsに含まれるIDを持つショップのみをフィルタリング
   const reservedShops = shops.filter(shop => reservedShopIds.has(shop.id));
@@ -94,21 +90,17 @@ const reservedShopsWithImages = reservedShops.map(shop => {
       reservedShops={reservedShopsWithImages}
       favorites={favorites}
       reservations={reservations}
-      jwtToken={jwtToken}
-      csrfToken={csrfToken}
+      jwtToken={jwtTokenAsString}
       userInfo={userInfo}
     />
   );
 }
 
-async function fetchShops(jwtToken: string | null, csrfToken: string | null) {
+async function fetchShops(jwtToken: string | null) {
   
   const headers: HeadersInit = {};
   if (jwtToken) {
     headers['Authorization'] = jwtToken;
-  }
-  if (csrfToken) {
-    headers['X-CSRF-Token'] = csrfToken;
   }
 
   const response = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/shops`, {
@@ -126,7 +118,7 @@ async function fetchShops(jwtToken: string | null, csrfToken: string | null) {
 }
 
 // お気に入りの情報を取得する新しい関数
-async function fetchFavorites(userInfo: string): Promise<Set<number>> {
+async function fetchFavorites(userId: string): Promise<Set<number>> {
   const response = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/build/favorites`, {
     method: 'GET',
     headers: {
@@ -141,10 +133,9 @@ async function fetchFavorites(userInfo: string): Promise<Set<number>> {
   }
 
   const favoriteData = await response.json();
-  const userInfoObj = JSON.parse(userInfo || '{}');
-  const userId = userInfoObj.id;
+  
 
-  const userFavorites = favoriteData.filter((fav: FavoriteItem) => fav.user.id === userId);
+  const userFavorites = favoriteData.filter((fav: FavoriteItem) => fav.user.id.toString() === userId);
   const favoriteIds = new Set<number>();
   for (const item of userFavorites) {
     favoriteIds.add(item.shop.id);
@@ -152,14 +143,11 @@ async function fetchFavorites(userInfo: string): Promise<Set<number>> {
   return favoriteIds;
 }
 
-async function fetchReservations(jwtToken: string | null, csrfToken: string | null) {
+async function fetchReservations(jwtToken: string | null) {
   // 予約データを取得
   const headers: HeadersInit = {
     ...jwtToken ? { 'Authorization': jwtToken } : {}, // jwtTokenがnullでない場合にのみAuthorizationヘッダーを追加
   };
-  if (csrfToken) {
-    headers['X-CSRF-Token'] = csrfToken; // csrfTokenがnullでない場合にのみX-CSRF-Tokenヘッダーを追加
-  }
 
   const response = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/reservations`, {
     method: 'GET',

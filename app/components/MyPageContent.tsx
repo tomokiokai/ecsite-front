@@ -35,7 +35,6 @@ type Props = {
   favorites: Set<number>;
   reservations: ReservationItem[];
   jwtToken: string | null;
-  csrfToken: string | null;
   userInfo: string | null;
 };
 
@@ -45,7 +44,6 @@ const MyPageContent: React.FC<Props> = ({
   favorites: initialFavorites,
   reservations, 
   jwtToken, 
-  csrfToken, 
   userInfo 
 }) => {
   const [favorites, setFavorites] = useState(new Set<number>(initialFavorites))
@@ -101,7 +99,6 @@ const handleToggleFavorite = async (shopId: number) => {
     const headers = {
       'Content-Type': 'application/json',
       'Authorization': jwtToken, // トークンがnullでないことを確認
-      'X-CSRF-Token': csrfToken,
     };
 
     // リクエストデータの設定（お気に入りを追加する場合のみ）
