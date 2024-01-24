@@ -1,7 +1,5 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import NewsArticle from '../components/NewsArticle';
-import { getNewsData } from '../components/NewsFetcher';
+import React from 'react';
+import NewsArticle from './NewsArticle';
 
 type Article = {
   title: string;
@@ -11,27 +9,30 @@ type Article = {
   publishedAt: string;
 };
 
+// サーバーアクションとして定義
+export async function getNewsData() {
+  const apiKey = process.env.NEXT_PUBLIC_GNEWS_API_KEY;
+  const endpoint = `https://newsapi.org/v2/top-headlines?country=jp&category=business&pageSize=5&apiKey=${apiKey}`;
 
-function NewsPage() {
-  const [articles, setArticles] = useState<Article[]>([]);
+  try {
+    const newsResponse = await fetch(endpoint);
+    const data = await newsResponse.json();
+    return data.articles;
+  } catch (error) {
+    console.error("Failed to fetch news", error);
+    return [];
+  }
+}
 
-  useEffect(() => {
-    async function fetchArticles() {
-      const data = await getNewsData();
-      setArticles(data.slice(0, 6));  // ここで記事を3つに制限
-    }
-
-    fetchArticles();
-  }, []);
+// サーバーコンポーネント
+export default async function NewsPage() {
+  const articles = await getNewsData();
 
   return (
     <div>
-      {articles.map((article) => (
-        <NewsArticle key={article.url} article={article} />
+      {articles.slice(0, 6).map((article: Article, index: number) => (
+        <NewsArticle key={index} article={article} />
       ))}
     </div>
   );
 }
-
-export default NewsPage;
-
