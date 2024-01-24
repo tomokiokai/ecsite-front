@@ -56,7 +56,7 @@ export const Auth = ({ token }: { token: string }) => {
       <div className="flex items-center">
         <CheckBadgeIcon className="h-8 w-8 mr-2 text-blue-500" />
         <span className="text-center text-3xl font-extrabold">
-          App by Next.js(Ver.13.4)/Go(Echo)
+          App by Next.js(Ver.14.0.1)/Go(Echo)
         </span>
       </div>
       <h2 className="my-6">{isLogin ? 'Login' : 'Create a new account'}</h2>
