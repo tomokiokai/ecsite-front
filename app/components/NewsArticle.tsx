@@ -1,3 +1,4 @@
+"use client"
 type Article = {
   title: string;
   description: string;
