@@ -50,6 +50,7 @@ const MyPageContent: React.FC<Props> = ({
   const router = useRouter();
   const userInfoObj = JSON.parse(userInfo || '{}');
   const currentUserId = userInfoObj.id;
+  console.log('currentUserId', currentUserId);
 
 function formatDate(dateString: string) {
   // DateオブジェクトをUTCで解析する
@@ -70,7 +71,7 @@ function formatDate(dateString: string) {
 function findReservationsForShop(reservations: ReservationItem[], shopId: number, userId: number) {
   // 特定のショップの予約を見つけ、ログインしているユーザーの予約のみをフィルタリングする
   const shopReservations = reservations.filter(res => res.shop_id === shopId && res.user_id === userId);
-  console.log(shopReservations)
+  
   // 予約の日付と時間の配列を返します。この際、日付は指定された形式に変換します。
   return shopReservations.map(res => ({ 
     id: res.id,

@@ -59,10 +59,10 @@ export default async function MyPage() {
   const shops = await fetchShops(jwtTokenAsString);
   const favorites = await fetchFavorites(userIdAsString); // ここでの引数は不要になりました
   const reservations = await fetchReservations(jwtTokenAsString);
-
+  const userReservations = reservations.filter(res => res.user_id === userId);
   // お気に入りと予約に基づいてショップをフィルタリング
   const favoriteShops = shops.filter(shop => favorites.has(shop.id));
-  const reservedShopIds = new Set(reservations.map(res => res.shop_id));
+  const reservedShopIds = new Set(userReservations.map(res => res.shop_id));
   
   
 // reservedShopIdsに含まれるIDを持つショップのみをフィルタリング
