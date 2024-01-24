@@ -185,23 +185,25 @@ export default function ReservePage({ token, reservations }: ReservePageProps) {
                   <span className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
                     {time}
                   </span>
-                  {selectedDate === dateString && selectedTime === time && (
-                    <div className="absolute right-0 top-1/2 transform -translate-y-1/2 flex items-center">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setNumberOfPeople(Math.max(1, numberOfPeople - 1)); }}
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l"
-                      >
-                        -
-                      </button>
-                      <span className="border-2 border-gray-300 px-2 py-1">{`${numberOfPeople}人`}</span>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setNumberOfPeople(numberOfPeople + 1); }}
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r"
-                      >
-                        +
-                      </button>
-                    </div>
-                  )}
+                    {selectedDate === dateString && selectedTime === time && (
+                      <div className="absolute inset-0 flex justify-center items-center">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setNumberOfPeople(Math.max(1, numberOfPeople - 1)); }}
+                          className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold p-1 rounded-l"
+                        >
+                          -
+                        </button>
+                        <span className="border-2 border-gray-300 px-2 py-1 bg-white text-gray-800">
+                          {`${numberOfPeople}人`}
+                        </span>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setNumberOfPeople(numberOfPeople + 1); }}
+                          className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold p-1 rounded-r"
+                        >
+                          +
+                        </button>
+                      </div>
+                    )}
                 </div>
               );
             })}
