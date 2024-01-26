@@ -25,37 +25,19 @@ type FavoriteItem = {
   };
 };
 
+type ShopListStaticProps = {
+  shops: Shop[];
+};
+
 // ランダムな画像URLを生成する関数
 function getRandomImageUrl() {
   const randomNum = Math.floor(Math.random() * 10);
   return `http://unsplash.it/500/300?random=${randomNum}`;
 }
 
-export default async function ShopListStatic() {
+export default async function ShopListStatic({ shops }: ShopListStaticProps) {
   const session = await getServerSession(authOptions);
-  async function fetchShops(): Promise<Shop[]> {
-    try {
-      
-
-      const headers = {
-        // ...jwtToken ? { Authorization: `${jwtToken}` } : {},
-        // 'X-CSRF-Token': csrfToken,  // Cookieから取得したCSRFトークンをヘッダーに設定
-        'Content-Type': 'application/json',
-      };
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/shops`, {
-        method: 'GET',
-        credentials: 'include',  // credentialsオプションを追加
-        headers: headers,  // headersオプションを追加
-      });
-      
-      const shops: Shop[] = await response.json();
-      return shops;
-    } catch (error) {
-      console.error("Error fetching shops:", error);
-      return [];
-    }
-  }
+  
 
   // お気に入りの情報を取得する新しい関数
   async function fetchFavorites(session: Session | null): Promise<Set<number>> {
@@ -82,7 +64,7 @@ export default async function ShopListStatic() {
     return favoriteIds;
   }
 
-  const shops = await fetchShops();
+
   const favorites = await fetchFavorites(session);
 
   // 各ショップに対してランダムな画像URLを生成
