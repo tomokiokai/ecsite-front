@@ -1,6 +1,4 @@
 import ShopDetailModal from '../../components/ShopDetailModal';
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { Shop } from '../../../types';
 
 type SearchParams = {
@@ -15,7 +13,6 @@ type Params = {
   searchParams: SearchParams;
 };
 
-// Fetch shop data directly inside the component
 const fetchShopData = async (shopId: string) => {
   const res = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/shops/${shopId}`, {
     headers: {
@@ -27,14 +24,12 @@ const fetchShopData = async (shopId: string) => {
 };
 
 export default async function ShopDetailPage({ params, searchParams }: { params: { shopId: string }, searchParams: SearchParams }) {
-  const session = await getServerSession(authOptions);
-  const token = typeof session?.jwt === 'string' ? session.jwt : "";
   const shop = await fetchShopData(params.shopId);
   const imageUrl = searchParams.imageUrl;
   return (
     <ShopDetailModal
       shop={{ ...shop, imageUrl }}
-      token={token || ""}
+      token=""
     />
   );
 };

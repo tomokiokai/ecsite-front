@@ -18,7 +18,6 @@ async function fetchShops() {
 
 export default async  function ShopPage() {
   const shops = await fetchShops();
-  console.log("shops:", shops)
   return (
     <div className="m-10 text-center">
       <span className="text-lg">
