@@ -7,7 +7,6 @@ async function fetchShops() {
     const response = await fetch(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/shops`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
-      cache:'force-cache'
     });
     const shops = await response.json();
     return shops;
