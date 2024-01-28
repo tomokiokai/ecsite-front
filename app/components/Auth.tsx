@@ -17,6 +17,7 @@ export const Auth = ({ token }: { token: string }) => {
   const { login, register } = useMutateAuth(); // login と register を取得
   const { data: session, status } = useSession();
   const setUser = useStore((state) => state.setUser);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
@@ -47,6 +48,7 @@ export const Auth = ({ token }: { token: string }) => {
       );
       axios.defaults.headers.common['X-CSRF-Token'] = data.csrf_token;
       setCsrfToken(data.csrf_token);
+      setIsLoading(false);
     };
     getCsrfToken();
   }, [token]);
@@ -108,6 +110,11 @@ export const Auth = ({ token }: { token: string }) => {
         onClick={() => setIsLogin(!isLogin)}
         className="h-6 w-6 my-2 text-blue-500 cursor-pointer"
       />
+      {isLoading && (
+        <p className="text-red-500 text-lg font-bold animate-blink">
+          Render無料枠のため、サーバー再起動中！少々お待ちください。
+        </p>
+      )}
     </div>
   );
 };

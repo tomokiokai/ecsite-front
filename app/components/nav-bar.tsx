@@ -34,8 +34,9 @@ export default function NavBar() {
           >
             Home
           </Link>
+          {/* ログイン状態に応じたリンク先の切り替え */}
           <Link
-            href="/todo"
+            href={isLoggedIn || jwtToken ? "/todo" : "/auth"}
             className="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-500"
           >
             todo
