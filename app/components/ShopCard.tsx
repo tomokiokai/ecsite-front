@@ -10,7 +10,7 @@ type Props = {
   address: string;
   genre: string;
   reservationDate?: string;
-  isFavorite: boolean; 
+  isFavorite?: boolean; 
   onToggleFavorite?: (shopId: number) => Promise<void>;
   isLoggedIn?: boolean;
   link: string;

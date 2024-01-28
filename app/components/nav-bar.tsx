@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import useStore from '../../store';
 import Link from 'next/link'
 import Image from 'next/image';
@@ -7,22 +7,18 @@ import axios from 'axios';
 import { Logout } from './Logout';
 
 export default function NavBar() {
-  const { user, isLoggedIn, csrfToken, setCsrfToken } = useStore();
-
-  useEffect(() => {
+  const { user, isLoggedIn, csrfToken, setCsrfToken, jwtToken } = useStore();
+  useEffect(() => {  
     if (!csrfToken) {
-      // CSRFトークンを取得
       axios.get(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/csrf`, { withCredentials: true })
         .then(response => {
-          setCsrfToken(response.data.csrf_token); // ステートにセット
+          setCsrfToken(response.data.csrf_token);
         })
         .catch(error => {
           console.error('CSRF token fetch error:', error);
         });
     }
-
-    
-  }, [isLoggedIn, csrfToken]); // 依存配列にcsrfTokenを追加
+  }, [csrfToken, isLoggedIn, setCsrfToken]);
 
   return (
     <header className="bg-gray-800 p-4 flex items-center justify-between fixed top-0 w-full z-10 bg-opacity-50">
@@ -57,7 +53,7 @@ export default function NavBar() {
             Auth
           </Link>
           <Link
-            href="/shops"
+            href={isLoggedIn || jwtToken ? "/shops" : "/static-shops"}
             className="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-500"
           >
             Shop
