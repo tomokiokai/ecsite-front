@@ -5,8 +5,10 @@ import { CheckBadgeIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
 import { useMutateAuth } from '../../hooks/useMutateAuth';
 import { CsrfToken } from '../../types';
 import { redirect } from 'next/navigation';
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import useStore from '../../store';
+import { FaGithub } from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
 
 export const Auth = ({ token }: { token: string }) => {
   const setCsrfToken = useStore((state) => state.setCsrfToken);
@@ -17,13 +19,34 @@ export const Auth = ({ token }: { token: string }) => {
   const { login, register } = useMutateAuth(); // login と register を取得
   const { data: session, status } = useSession();
   const setUser = useStore((state) => state.setUser);
+  const setIsLoggedIn = useStore((state) => state.setIsLoggedIn);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
-      setUser({ name: session.user.name || "", email: session.user.email || "" });
+      // OAuth認証が成功し、セッション情報が存在する場合
+      const userInfo = { email: session.user.email, name: session.user.name };
+      axios.post(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/auth/signup`, userInfo, {
+        withCredentials: true
+      }).then(response => {
+        // バックエンドからユーザー情報とJWTトークンを含む応答が返されると仮定
+        if (response.data.jwt) {
+          // JWTトークンをlocalStorageに保存（オプショナル）
+          localStorage.setItem('jwt', response.data.jwt);
+        }
+        // グローバルステートを更新
+        setUser({ name: response.data.user.name, email: response.data.user.email });
+        setIsLoggedIn(true);
+      }).catch(error => {
+        console.error('Failed to send user info to backend:', error);
+      });
+    } else if (status === 'unauthenticated') {
+      // セッション情報がない場合、ユーザー情報をクリア
+      setUser(null);
+      setIsLoggedIn(false);
     }
-  }, [status, session]);
+  }, [status, session, setUser, setIsLoggedIn]);
+
 
   const submitAuthHandler = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,21 +60,38 @@ export const Auth = ({ token }: { token: string }) => {
   };
 
   useEffect(() => {
-    if (token) {
+  if (token) {
       redirect('/');
     }
+  let isMounted = true;
+  let retryTimeout: ReturnType<typeof setTimeout>;
 
-    axios.defaults.withCredentials = true;
-    const getCsrfToken = async () => {
-      const { data } = await axios.get<CsrfToken>(
-        `${process.env.NEXT_PUBLIC_RESTAPI_URL}/csrf`
-      );
-      axios.defaults.headers.common['X-CSRF-Token'] = data.csrf_token;
-      setCsrfToken(data.csrf_token);
-      setIsLoading(false);
-    };
-    getCsrfToken();
-  }, [token]);
+  const fetchCsrfToken = async () => {
+    try {
+      const { data } = await axios.get(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/csrf`, {
+        withCredentials: true
+      });
+      if (isMounted) {
+        axios.defaults.headers.common['X-CSRF-Token'] = data.csrf_token;
+        setCsrfToken(data.csrf_token);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error('Failed to fetch CSRF token:', error);
+      if (isMounted) {
+        // 3秒後にリトライ
+        retryTimeout = setTimeout(fetchCsrfToken, 5000);
+      }
+    }
+  };
+
+  fetchCsrfToken();
+
+  return () => {
+    isMounted = false;
+    clearTimeout(retryTimeout); // コンポーネントのアンマウント時にタイマーをクリア
+  };
+}, [setCsrfToken]);
 
   return (
     <div className="flex justify-center items-center flex-col min-h-screen text-gray-600 font-mono">
@@ -64,7 +104,7 @@ export const Auth = ({ token }: { token: string }) => {
       <h2 className="my-6">{isLogin ? 'Login' : 'Create a new account'}</h2>
       <form onSubmit={submitAuthHandler}>
         {!isLogin && ( // 登録の場合のみ名前フィールドを表示
-          <div>
+          <div className="w-full flex justify-center">
             <input
               className="mb-3 px-3 text-sm py-2 border border-gray-300"
               name="name"
@@ -75,7 +115,7 @@ export const Auth = ({ token }: { token: string }) => {
             />
           </div>
         )}
-        <div>
+        <div className="w-full flex justify-center">
           <input
             className="mb-3 px-3 text-sm py-2 border border-gray-300"
             name="email"
@@ -86,7 +126,7 @@ export const Auth = ({ token }: { token: string }) => {
             value={email}
           />
         </div>
-        <div>
+        <div className="w-full flex justify-center">
           <input
             className="mb-3 px-3 text-sm py-2 border border-gray-300"
             name="password"
@@ -96,13 +136,31 @@ export const Auth = ({ token }: { token: string }) => {
             value={pw}
           />
         </div>
-        <div className="flex justify-center my-2">
+        <div className="flex flex-col items-center my-2 w-full px-4">
           <button
-            className="disabled:opacity-40 py-2 px-4 rounded text-white bg-indigo-600"
-            disabled={!email || !pw || (!isLogin && !name)} // 登録の場合、名前も必須
+            className="disabled:opacity-40 py-2 px-4 rounded text-white bg-indigo-600 mb-2"
+            disabled={!email || !pw || (!isLogin && !name)}
             type="submit"
           >
             {isLogin ? 'Login' : 'Sign Up'}
+          </button>
+
+          <button
+            onClick={() => signIn('google')}
+            type="button"
+            className="py-2 px-4 rounded bg-white border border-gray-300 text-gray-700 flex items-center mb-2"
+            
+          >
+            <FcGoogle className="mr-2" /> Sign in with Google
+          </button>
+
+          <button
+            onClick={() => signIn('github')}
+            type="button"
+            className="py-2 px-4 rounded text-white bg-gray-900 flex items-center"
+            
+          >
+            <FaGithub className="mr-2" /> Sign in with GitHub
           </button>
         </div>
       </form>

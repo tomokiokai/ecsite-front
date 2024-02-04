@@ -51,18 +51,27 @@ export const useMutateAuth = () => {
 
   const logout = async () => {
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/logout`);
-      resetEditedTask();
-      document.cookie = "authToken=; Max-Age=0; path=/;";
-      await signOut({ redirect: false });
-      setIsLoggedIn(false);
-      localStorage.removeItem('user-store');
-      router.push('/'); // ルートページへのリダイレクト
-      router.refresh();
-    } catch (err) {
-      switchErrorHandling('ログアウトエラーが発生しました。');
-    }
-  };
+      // CSRFトークンを取得
+        const csrfToken = axios.defaults.headers.common['X-CSRF-Token'] || '';
+
+        // ログアウトリクエストを送信
+        await axios.post(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/logout`, {}, {
+            withCredentials: true,
+            headers: {
+                'X-CSRF-Token': csrfToken, // CSRFトークンをヘッダーに設定
+            },
+            });
+              resetEditedTask();
+              document.cookie = "authToken=; Max-Age=0; path=/;";
+              await signOut({ redirect: false });
+              setIsLoggedIn(false);
+              localStorage.removeItem('user-store');
+              router.push('/'); // ルートページへのリダイレクト
+              router.refresh();
+            } catch (err) {
+              switchErrorHandling('ログアウトエラーが発生しました。');
+            }
+          };
 
   return { login, register, logout };
 };

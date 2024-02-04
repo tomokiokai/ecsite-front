@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import ShopCard from './ShopCard';
+import useStore from '../../store';
 
 type Shop = {
   id: number;
@@ -50,7 +51,7 @@ const MyPageContent: React.FC<Props> = ({
   const router = useRouter();
   const userInfoObj = JSON.parse(userInfo || '{}');
   const currentUserId = userInfoObj.id;
-  console.log('currentUserId', currentUserId);
+  const { csrfToken } = useStore();
 
 function formatDate(dateString: string) {
   // DateオブジェクトをUTCで解析する
@@ -124,7 +125,6 @@ const handleToggleFavorite = async (shopId: number) => {
   };
 
   const handleCancelReservation = async (reservationId: number) => {
-    console.log("Called handleCancelReservation with:", reservationId);
   try {
     const apiUrl = `${process.env.NEXT_PUBLIC_RESTAPI_URL}/reservations/${reservationId}`;
 
@@ -132,10 +132,10 @@ const handleToggleFavorite = async (shopId: number) => {
     const headers = {
       'Content-Type': 'application/json',
       'Authorization': jwtToken, // トークンがnullでないことを確認
+      'X-CSRF-Token': csrfToken,
     };
-
     // axiosを使用してHTTP DELETEリクエストを送信
-    await axios.delete(apiUrl, { headers });
+    await axios.delete(apiUrl, { headers,withCredentials: true });
 
     // ページのデータをリフレッシュ
     router.refresh();

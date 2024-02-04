@@ -10,13 +10,20 @@ export default function NavBar() {
   const { user, isLoggedIn, csrfToken, setCsrfToken, jwtToken } = useStore();
   useEffect(() => {  
     if (!csrfToken) {
+      axios.defaults.withCredentials = true;
       axios.get(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/csrf`, { withCredentials: true })
         .then(response => {
-          setCsrfToken(response.data.csrf_token);
+          const newCsrfToken = response.data.csrf_token;
+          setCsrfToken(newCsrfToken);
+          // CSRF トークンを Axios デフォルトヘッダーに設定
+          axios.defaults.headers.common['X-CSRF-Token'] = newCsrfToken;
         })
         .catch(error => {
           console.error('CSRF token fetch error:', error);
         });
+    } else {
+      // 既にCSRFトークンが存在する場合は、Axiosのデフォルト設定を更新
+      axios.defaults.headers.common['X-CSRF-Token'] = csrfToken;
     }
   }, [csrfToken, isLoggedIn, setCsrfToken]);
 
