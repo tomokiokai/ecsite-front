@@ -24,28 +24,38 @@ export const Auth = ({ token }: { token: string }) => {
 
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
-      // OAuth認証が成功し、セッション情報が存在する場合
-      const userInfo = { email: session.user.email, name: session.user.name };
-      axios.post(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/auth/signup`, userInfo, {
-        withCredentials: true
-      }).then(response => {
-        // バックエンドからユーザー情報とJWTトークンを含む応答が返されると仮定
-        if (response.data.jwt) {
-          // JWTトークンをlocalStorageに保存（オプショナル）
-          localStorage.setItem('jwt', response.data.jwt);
-        }
-        // グローバルステートを更新
-        setUser({ name: response.data.user.name, email: response.data.user.email });
-        setIsLoggedIn(true);
-      }).catch(error => {
-        console.error('Failed to send user info to backend:', error);
-      });
+        // OAuth認証が成功し、セッション情報が存在する場合
+        const userInfo = { email: session.user.email, name: session.user.name };
+
+        // まず、ユーザー情報をバックエンドに送信してユーザー登録または更新
+        axios.post(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/auth/signup`, userInfo, {
+            withCredentials: true
+        }).then(response => {
+            // バックエンドからユーザー情報とJWTトークンを含む応答が返されると仮定
+            if (response.data.jwt) {
+                // JWTトークンをlocalStorageに保存（オプショナル）
+                localStorage.setItem('jwt', response.data.jwt);
+            }
+            // グローバルステートを更新
+            setUser({ name: response.data.user.name, email: response.data.user.email });
+            setIsLoggedIn(true);
+
+            // ここで`/auth/oauth/login`にアクセスして、バックエンドでCookieの設定を行う
+            return axios.post(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/auth/oauth/login`, userInfo, {
+                withCredentials: true // Cookieを受け取るために必須
+            });
+        }).then(oauthResponse => {
+            // `/auth/oauth/login`からの応答を処理（必要に応じて）
+            console.log('OAuth login successful', oauthResponse.data);
+        }).catch(error => {
+            console.error('Failed to complete the OAuth login process:', error);
+        });
     } else if (status === 'unauthenticated') {
-      // セッション情報がない場合、ユーザー情報をクリア
-      setUser(null);
-      setIsLoggedIn(false);
+        // セッション情報がない場合、ユーザー情報をクリア
+        setUser(null);
+        setIsLoggedIn(false);
     }
-  }, [status, session, setUser, setIsLoggedIn]);
+}, [status, session, setUser, setIsLoggedIn]);
 
 
   const submitAuthHandler = async (e: FormEvent<HTMLFormElement>) => {
