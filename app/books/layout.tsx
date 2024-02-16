@@ -1,7 +1,7 @@
 "use client";
 import '../globals.css';
 
-export default function BookLayout({
+export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode

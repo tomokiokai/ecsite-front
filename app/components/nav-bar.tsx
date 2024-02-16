@@ -46,13 +46,13 @@ export default function NavBar() {
             href={isLoggedIn || jwtToken ? "/todo" : "/auth"}
             className="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-500"
           >
-            todo
+            Todo
           </Link>
           <Link
             href="/blogs"
             className="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-500"
           >
-            blog
+            Blog
           </Link>
           <Link
             href="/auth"
@@ -71,6 +71,12 @@ export default function NavBar() {
             className="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-500"
           >
             MyPage
+          </Link>
+          <Link
+            href={isLoggedIn || jwtToken ? "/books" : "/auth"}
+            className="rounded bg-gray-700 px-3 py-2 text-white hover:bg-gray-500"
+          >
+            Purchase
           </Link>
         </nav>
       </div>

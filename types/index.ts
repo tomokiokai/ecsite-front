@@ -36,6 +36,24 @@ export type Shop = {
   // onClick: (id: number) => void;
 };
 
+export type BookType = {
+  id: number;
+  title: string;
+  price: number;
+  content: string;
+  image: { url: string };
+  created_at: string;
+  updated_at: string;
+};
+
+export type Purchase = {
+  id: string;
+  userId: string;
+  bookId: string;
+  sessionId: string;
+  createdAt: string;
+};
+
 export interface CustomUser {
   id: string; // または必要に応じて他の識別子
   name: string;

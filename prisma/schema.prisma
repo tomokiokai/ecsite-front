@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL")
+  directUrl         = env("POSTGRES_URL_NON_POOLING")
+  shadowDatabaseUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model Purchase {
+  id        Int      @id @default(autoincrement())
+  userId    String   // Goのバックエンドで管理されるユーザーID
+  bookId String   // 購入された商品のID
+  createdAt DateTime @default(now())
+}
