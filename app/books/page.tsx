@@ -25,8 +25,8 @@ export default async function Home() {
   return (
     <>
       <main className="flex flex-wrap justify-center items-center md:mt-20 mt-20">
-        <span className="text-lg">
-        Book Commerce 🚀
+        <span className="text-lg mb-8 block">
+        Book Commerce by microCMS & Prisma & stripe 🚀
         </span>
         <div className="w-full text-center mb-4">
           <Link

@@ -29,6 +29,9 @@ export default function Footer() {
             <Link href="/mypage">
               <span className="cursor-pointer text-gray-400 hover:text-white text-xl">MyPage</span>
             </Link>
+            <Link href="/books">
+              <span className="cursor-pointer text-gray-400 hover:text-white text-xl">Purchase</span>
+            </Link>
           </nav>
         </div>
         <div className="text-center text-gray-400">
