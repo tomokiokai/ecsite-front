@@ -78,20 +78,45 @@ const Book = memo(({ book, user, isPurchased }: BookProps) => {
     <>
       {/* アニメーションスタイル */}
       <style jsx global>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: scale(0.9);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-        .modal {
-          animation: fadeIn 0.3s ease-out forwards;
-        }
-      `}</style>
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  .modal {
+    animation: fadeIn 0.3s ease-out forwards;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    margin: auto;
+    text-align: center; /* テキストを中央揃えに */
+  }
+  .button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+`}</style>
+
 
       <div className="flex flex-col items-center m-4">
         <a
@@ -114,24 +139,26 @@ const Book = memo(({ book, user, isPurchased }: BookProps) => {
           </div>
         </a>
         {showModal && (
-          <div className="absolute top-0 left-0 right-0 bottom-0 bg-slate-900 bg-opacity-50 flex justify-center items-center modal">
-            <div className="bg-white p-8 rounded-lg">
-              <h3 className="text-xl mb-4">本を購入しますか？</h3>
-              <button
-                onClick={handlePurchaseConfirm}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4"
-              >
-                購入する
-              </button>
-              <button
-                onClick={handleCancel}
-                className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-              >
-                キャンセル
-              </button>
-            </div>
-          </div>
-        )}
+  <div className="modal">
+    <div className="modal-content">
+      <h3 className="text-xl mb-4">本を購入しますか？</h3>
+      <div className="button-container"> {/* このdivを追加してボタンをラップします */}
+        <button
+          onClick={handlePurchaseConfirm}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          購入する
+        </button>
+        <button
+          onClick={handleCancel}
+          className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+        >
+          キャンセル
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </>
   );

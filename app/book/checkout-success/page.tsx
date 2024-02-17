@@ -46,7 +46,7 @@ const PurchaseSuccess = () => {
         </p>
         <div className="mt-6 text-center">
           <Link
-            href={`/book/${bookUrl}`}
+            href={`/history`}
             className="text-indigo-600 hover:text-indigo-800 transition duration-300"
           >
             購入した記事を読む
